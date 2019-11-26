@@ -1,4 +1,4 @@
-# Changelog for the Mapbox Android demo app
+# Changelog for the Mapbox Android demo app 
 
 Mapbox welcomes participation and contributions from everyone.
 
