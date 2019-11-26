@@ -1,8 +1,6 @@
 package com.mapbox.mapboxandroiddemo.examples.dds;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.mapbox.mapboxandroiddemo.R;
@@ -16,10 +14,14 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import timber.log.Timber;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
@@ -71,8 +73,11 @@ public class MultipleHeatmapStylingActivity extends AppCompatActivity
           .build();
         mapboxMap.animateCamera(
           CameraUpdateFactory.newCameraPosition(cameraPositionForFragmentMap), 2600);
-        style.addSource(new GeoJsonSource(HEATMAP_SOURCE_ID,
-          loadGeoJsonFromAsset("la_heatmap_styling_points.geojson")));
+        try {
+          style.addSource(new GeoJsonSource(HEATMAP_SOURCE_ID, new URI("asset://la_heatmap_styling_points.geojson")));
+        } catch (URISyntaxException exception) {
+          Timber.d(exception);
+        }
         initHeatmapColors();
         initHeatmapRadiusStops();
         initHeatmapIntensityStops();
@@ -84,8 +89,9 @@ public class MultipleHeatmapStylingActivity extends AppCompatActivity
             if (index == listOfHeatmapColors.length - 1) {
               index = 0;
             }
-            if (style.getLayer(HEATMAP_LAYER_ID) != null) {
-              style.getLayer(HEATMAP_LAYER_ID).setProperties(
+            Layer heatmapLayer = style.getLayer(HEATMAP_LAYER_ID);
+            if (heatmapLayer != null) {
+              heatmapLayer.setProperties(
                 heatmapColor(listOfHeatmapColors[index]),
                 heatmapRadius(listOfHeatmapRadiusStops[index]),
                 heatmapIntensity(listOfHeatmapIntensityStops[index])
@@ -411,22 +417,5 @@ public class MultipleHeatmapStylingActivity extends AppCompatActivity
       // 11
       0.5f
     };
-  }
-
-  private String loadGeoJsonFromAsset(String filename) {
-    try {
-      // Load GeoJSON file
-      InputStream is = getAssets().open(filename);
-      int size = is.available();
-      byte[] buffer = new byte[size];
-      is.read(buffer);
-      is.close();
-      return new String(buffer, "UTF-8");
-
-    } catch (Exception exception) {
-      Timber.e("Exception loading GeoJSON: %s", exception.toString());
-      exception.printStackTrace();
-      return null;
-    }
   }
 }

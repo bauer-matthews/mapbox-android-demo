@@ -1,8 +1,8 @@
 package com.mapbox.mapboxandroiddemo.examples.plugins;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.mapboxandroiddemo.R;
@@ -41,7 +41,7 @@ public class SymbolListenerActivity extends AppCompatActivity implements
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_annotation_plugin_symbol_activity);
+    setContentView(R.layout.activity_annotation_plugin_symbol_listener);
 
     mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);
@@ -65,15 +65,14 @@ public class SymbolListenerActivity extends AppCompatActivity implements
           .withLatLng(new LatLng(60.169091, 24.939876))
           .withIconImage(MAKI_ICON_HARBOR)
           .withIconSize(2.0f)
-          .setDraggable(true));
+          .withDraggable(true));
 
         // Add click listener and change the symbol to a cafe icon on click
         symbolManager.addClickListener(new OnSymbolClickListener() {
           @Override
           public void onAnnotationClick(Symbol symbol) {
             Toast.makeText(SymbolListenerActivity.this,
-              String.format("Symbol clicked"),
-              Toast.LENGTH_SHORT).show();
+              getString(R.string.clicked_symbol_toast), Toast.LENGTH_SHORT).show();
             symbol.setIconImage(MAKI_ICON_CAFE);
             symbolManager.update(symbol);
           }
@@ -84,8 +83,7 @@ public class SymbolListenerActivity extends AppCompatActivity implements
           @Override
           public void onAnnotationLongClick(Symbol symbol) {
             Toast.makeText(SymbolListenerActivity.this,
-              String.format("Symbol long clicked"),
-              Toast.LENGTH_SHORT).show();
+              getString(R.string.long_clicked_symbol_toast), Toast.LENGTH_SHORT).show();
             symbol.setIconImage(MAKI_ICON_AIRPORT);
             symbolManager.update(symbol);
           }
@@ -107,6 +105,8 @@ public class SymbolListenerActivity extends AppCompatActivity implements
           public void onAnnotationDragFinished(Symbol annotation) {
           }
         });
+        Toast.makeText(SymbolListenerActivity.this,
+          getString(R.string.symbol_listener_instruction_toast), Toast.LENGTH_SHORT).show();
       }
     });
   }

@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.triplet.play'
+apply plugin: 'io.fabric'
+apply plugin: 'org.jmailen.kotlinter'
 apply from: "$project.rootDir/gradle/script-git-version.gradle"
 apply from: "$project.rootDir/gradle/gradle-dependencies-graph.gradle"
 
@@ -15,12 +17,7 @@ android {
         targetCompatibility 1.8
     }
 
-    playAccountConfigs {
-        defaultAccountConfig {
-            serviceAccountEmail = 'mapbox-android-demo-publish@android-gl-native.iam.gserviceaccount.com'
-            jsonFile = file("$project.rootDir/android-gl-native-6d21dd280e7b.json")
-        }
-    }
+
 
     defaultConfig {
         applicationId "com.mapbox.mapboxandroiddemo"
@@ -37,17 +34,21 @@ android {
 
         buildConfigField "int", "MIN_SDK_VERSION", "$minSdkVersion.apiLevel"
 
-        playAccountConfig = playAccountConfigs.defaultAccountConfig
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath true
+            }
+        }
     }
 
-    flavorDimensions "default"
+    flavorDimensions 'default'
 
     productFlavors {
         global {
             isGlobal = true
-            resValue "string", "firebase_app_id", "1:557332920931:android:bdf11618ae45dd61"
-            resValue "string", "firebase_api_key", "AIzaSyCGCYLyLoi31Hv-pkBO0D51zCyxjngJbz8"
+            resValue "string", "firebase_app_id", System.getenv('FIREBASE_APP_ID') ? System.getenv('FIREBASE_APP_ID') : "blank_place_holder_string"
+            resValue "string", "firebase_api_key", System.getenv('FIREBASE_API_KEY') ? System.getenv('FIREBASE_API_KEY') : "blank_place_holder_string"
         }
 
         china {
@@ -72,6 +73,7 @@ android {
             applicationIdSuffix '.debug'
             versionNameSuffix '-Debug'
             minifyEnabled false
+            ext.enableCrashlytics = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
@@ -94,11 +96,19 @@ android {
         abortOnError false
         disable 'MissingTranslation', 'ExtraTranslation'
     }
-
-    play {
-        track = 'alpha'
-        untrackOld = true
+    dexOptions {
+        javaMaxHeapSize "4g"
     }
+}
+
+play {
+    track = "alpha"
+    resolutionStrategy = "auto"
+    serviceAccountCredentials = file("$project.rootDir/android-gl-native-6d21dd280e7b.json")
+}
+
+kotlinter {
+    indentSize = 2
 }
 
 if (isGlobal) {
@@ -107,17 +117,16 @@ if (isGlobal) {
 dependencies {
 
     // Wearable application module
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     globalWearApp project(':MapboxAndroidWearDemo')
 
     // Support libraries
     implementation dependenciesList.supportGridLayout
+    implementation dependenciesList.supportAppcompatV4
     implementation dependenciesList.supportAppcompatV7
     implementation dependenciesList.supportCardView
     implementation dependenciesList.supportRecyclerView
-    implementation dependenciesList.supportDesign
+    implementation dependenciesList.supportMaterialDesign
     implementation dependenciesList.supportCustomTabs
-    implementation dependenciesList.supportV4
     implementation dependenciesList.supportConstraintLayout
     implementation dependenciesList.supportAnimation
 
@@ -134,11 +143,14 @@ dependencies {
     implementation dependenciesList.mapboxPluginTraffic
     implementation dependenciesList.mapboxPluginMarkerView
     implementation dependenciesList.mapboxPluginAnnotation
+    implementation dependenciesList.mapboxPluginScalebar
 
     // Firebase
-    globalImplementation dependenciesList.firebaseCrash
+    globalImplementation dependenciesList.firebaseCrashlytics
+    globalImplementation dependenciesList.firebaseCore
     globalImplementation dependenciesList.firebasePerf
-    globalImplementation dependenciesList.firebaseCrash
+    implementation       dependenciesList.firebaseMessaging
+    implementation       dependenciesList.firebaseRemoteConfig
 
     // Other dependencies
     implementation dependenciesList.gson
@@ -170,3 +182,6 @@ dependencies {
 
 apply from: "${rootDir}/gradle/checkstyle.gradle"
 apply plugin: 'kotlin-android-extensions'
+if (getGradle().getStartParameter().getTaskRequests().toString().contains("Release")) {
+    apply plugin: 'com.google.gms.google-services'
+}

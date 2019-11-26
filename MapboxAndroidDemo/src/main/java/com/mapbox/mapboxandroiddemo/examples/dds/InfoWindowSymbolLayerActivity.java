@@ -8,8 +8,8 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -30,6 +30,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
@@ -103,13 +104,12 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
   public void setUpData(final FeatureCollection collection) {
     featureCollection = collection;
     if (mapboxMap != null) {
-      Style style = mapboxMap.getStyle();
-      if (style != null) {
+      mapboxMap.getStyle(style -> {
         setupSource(style);
         setUpImage(style);
         setUpMarkerLayer(style);
         setUpInfoWindowLayer(style);
-      }
+      });
     }
   }
 
@@ -145,7 +145,8 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
     loadedStyle.addLayer(new SymbolLayer(MARKER_LAYER_ID, GEOJSON_SOURCE_ID)
       .withProperties(
         iconImage(MARKER_IMAGE_ID),
-        iconAllowOverlap(true)
+        iconAllowOverlap(true),
+        iconOffset(new Float[] {0f, -8f})
       ));
   }
 
@@ -168,7 +169,7 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
         iconAllowOverlap(true),
 
         /* offset the info window to be above the marker */
-        iconOffset(new Float[] {-2f, -25f})
+        iconOffset(new Float[] {-2f, -28f})
       )
       /* add a filter to show only when selected feature property is true */
       .withFilter(eq((get(PROPERTY_SELECTED)), literal(true))));
@@ -187,12 +188,14 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
     if (!features.isEmpty()) {
       String name = features.get(0).getStringProperty(PROPERTY_NAME);
       List<Feature> featureList = featureCollection.features();
-      for (int i = 0; i < featureList.size(); i++) {
-        if (featureList.get(i).getStringProperty(PROPERTY_NAME).equals(name)) {
-          if (featureSelectStatus(i)) {
-            setFeatureSelectState(featureList.get(i), false);
-          } else {
-            setSelected(i);
+      if (featureList != null) {
+        for (int i = 0; i < featureList.size(); i++) {
+          if (featureList.get(i).getStringProperty(PROPERTY_NAME).equals(name)) {
+            if (featureSelectStatus(i)) {
+              setFeatureSelectState(featureList.get(i), false);
+            } else {
+              setSelected(i);
+            }
           }
         }
       }
@@ -208,9 +211,11 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
    * @param index the index of selected feature
    */
   private void setSelected(int index) {
-    Feature feature = featureCollection.features().get(index);
-    setFeatureSelectState(feature, true);
-    refreshSource();
+    if (featureCollection.features() != null) {
+      Feature feature = featureCollection.features().get(index);
+      setFeatureSelectState(feature, true);
+      refreshSource();
+    }
   }
 
   /**
@@ -219,8 +224,10 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
    * @param feature the feature to be selected.
    */
   private void setFeatureSelectState(Feature feature, boolean selectedState) {
-    feature.properties().addProperty(PROPERTY_SELECTED, selectedState);
-    refreshSource();
+    if (feature.properties() != null) {
+      feature.properties().addProperty(PROPERTY_SELECTED, selectedState);
+      refreshSource();
+    }
   }
 
   /**
@@ -241,11 +248,10 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
    */
   public void setImageGenResults(HashMap<String, Bitmap> imageMap) {
     if (mapboxMap != null) {
-      Style style = mapboxMap.getStyle();
-      if (style != null) {
+      mapboxMap.getStyle(style -> {
         // calling addImages is faster as separate addImage calls for each bitmap.
         style.addImages(imageMap);
-      }
+      });
     }
   }
 
@@ -299,7 +305,7 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
         byte[] buffer = new byte[size];
         is.read(buffer);
         is.close();
-        return new String(buffer, "UTF-8");
+        return new String(buffer, Charset.forName("UTF-8"));
       } catch (Exception exception) {
         throw new RuntimeException(exception);
       }
@@ -357,7 +363,7 @@ public class InfoWindowSymbolLayerActivity extends AppCompatActivity implements
           int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
           bubbleLayout.measure(measureSpec, measureSpec);
 
-          int measuredWidth = bubbleLayout.getMeasuredWidth();
+          float measuredWidth = bubbleLayout.getMeasuredWidth();
 
           bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
 

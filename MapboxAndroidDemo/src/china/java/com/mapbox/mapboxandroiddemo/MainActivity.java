@@ -6,15 +6,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,10 +29,12 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.mapbox.mapboxandroiddemo.adapter.ExampleAdapter;
 import com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker;
 import com.mapbox.mapboxandroiddemo.commons.FirstTimeRunChecker;
+import com.mapbox.mapboxandroiddemo.examples.ChinaBoundsCheckerActivity;
+import com.mapbox.mapboxandroiddemo.examples.MixedChinaAndGlobalStyleActivity;
 import com.mapbox.mapboxandroiddemo.examples.SimpleChinaMapViewActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.AnimatedMarkerActivity;
+import com.mapbox.mapboxandroiddemo.examples.basics.KotlinSimpleMapViewActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.DrawPolygonActivity;
-import com.mapbox.mapboxandroiddemo.examples.basics.SimpleMapViewActivityKotlin;
 import com.mapbox.mapboxandroiddemo.examples.camera.AnimateMapCameraActivity;
 import com.mapbox.mapboxandroiddemo.examples.camera.BoundingBoxCameraActivity;
 import com.mapbox.mapboxandroiddemo.examples.camera.RestrictCameraActivity;
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private ExampleAdapter adapter;
   private RecyclerView recyclerView;
   private TextView noExamplesTv;
+  private NavigationView navigationView;
 
   private boolean loggedIn;
   private int currentCategory = R.id.nav_basics;
@@ -114,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    loggedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+      .getBoolean(TOKEN_SAVED_KEY, false);
 
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -174,15 +180,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     toggle.syncState();
 
-    NavigationView navigationView = findViewById(R.id.nav_view);
+    navigationView = findViewById(R.id.nav_view);
     if (navigationView != null) {
       navigationView.setNavigationItemSelectedListener(this);
       navigationView.setCheckedItem(R.id.nav_basics);
+      navigationView.getMenu().findItem(R.id.show_login_screen_in_nav_drawer).setVisible(false);
     }
-
-    loggedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-      .getBoolean(TOKEN_SAVED_KEY, false);
-
     if (loggedIn) {
       analytics.setMapboxUsername();
       analytics.viewedScreen(MainActivity.class.getSimpleName(), loggedIn);
@@ -212,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     // Handle navigation view item clicks here.
     int id = item.getItemId();
-
     if (id == R.id.settings_in_nav_drawer) {
       buildSettingsDialog();
     }
@@ -246,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           models.add(model);
         }
       }
+
     }
 
     adapter.updateDataSet(models, currentCategory);
@@ -308,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           }
         })
         .show();
+
       return true;
     } else if (id == R.id.action_show_other_language) {
       if (showJavaExamples) {
@@ -339,10 +343,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     final View customView = inflater.inflate(R.layout.settings_dialog_layout, null);
     Switch analyticsOptOutSwitch = customView.findViewById(R.id.analytics_opt_out_switch);
+    Switch alwaysShowLandingSwitch = customView.findViewById(R.id.login_or_create_account_switch);
     analyticsOptOutSwitch.setChecked(!analytics.isAnalyticsEnabled());
 
     final SettingsDialogView dialogView = new SettingsDialogView(customView,
-      this, analyticsOptOutSwitch, analytics, loggedIn);
+      this, analyticsOptOutSwitch, alwaysShowLandingSwitch, analytics, loggedIn);
 
     dialogView.buildDialog();
 
@@ -351,11 +356,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     if (!loggedIn) {
       logOutOfMapboxAccountButton.setVisibility(View.GONE);
     } else {
-      logOutOfMapboxAccountButton.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          dialogView.logOut(loggedIn);
-        }
+      logOutOfMapboxAccountButton.setOnClickListener(view -> {
+        dialogView.logOut(loggedIn);
       });
     }
   }
@@ -388,6 +390,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, SimpleChinaMapViewActivity.class),
       null,
       R.string.activity_china_simple_china_mapview_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_basics,
+        R.string.activity_china_simple_china_bounds_checker_title,
+        R.string.activity_china_simple_china_bounds_checker_description,
+        new Intent(MainActivity.this, ChinaBoundsCheckerActivity.class),
+        null,
+        R.string.activity_china_simple_china_bounds_checker_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_basics,
+        R.string.activity_china_mixed_china_and_global_style_title,
+        R.string.activity_china_mixed_china_and_global_style_description,
+        new Intent(MainActivity.this, MixedChinaAndGlobalStyleActivity.class),
+        null,
+        R.string.activity_china_mixed_china_and_global_style_url, false, BuildConfig.MIN_SDK_VERSION));
+
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_styles,
@@ -708,7 +727,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       R.id.nav_basics,
       R.string.activity_basic_mapbox_kotlin_title,
       R.string.activity_basic_mapbox_kotlin_description,
-      new Intent(MainActivity.this, SimpleMapViewActivityKotlin.class),
+      new Intent(MainActivity.this, KotlinSimpleMapViewActivity.class),
       null,
       R.string.activity_basic_simple_mapview_url, true, BuildConfig.MIN_SDK_VERSION));
   }

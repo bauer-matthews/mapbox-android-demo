@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
@@ -19,9 +17,12 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import timber.log.Timber;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.LINE_CAP_ROUND;
@@ -43,8 +44,6 @@ public class HighlightedLineActivity extends AppCompatActivity implements
   private MapView mapView;
   private MapboxMap mapboxMap;
   private LineLayer backgroundLineLayer;
-  private LineLayer routeLineLayer;
-  private Style style;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,6 @@ public class HighlightedLineActivity extends AppCompatActivity implements
     mapboxMap.setStyle(Style.LIGHT, new Style.OnStyleLoaded() {
       @Override
       public void onStyleLoaded(@NonNull Style style) {
-        HighlightedLineActivity.this.style = style;
         initSource(style);
         initLayers(style);
         mapboxMap.addOnMapClickListener(HighlightedLineActivity.this);
@@ -79,34 +77,36 @@ public class HighlightedLineActivity extends AppCompatActivity implements
 
   @Override
   public boolean onMapClick(@NonNull LatLng point) {
-    if (!style.isFullyLoaded()) {
-      return false;
-    }
-
-    // Detect whether a linestring was clicked on
-    PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
-    RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
-    List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, "line-layer-id");
-    if (featureList.size() > 0) {
-      for (Feature feature : featureList) {
-        GeoJsonSource source = style.getSourceAs("background-geojson-source-id");
-        if (source != null) {
-          source.setGeoJson(feature);
-          backgroundLineLayer.setProperties(visibility(VISIBLE));
-          return true;
+    mapboxMap.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        // Detect whether a linestring was clicked on
+        PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
+        RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
+        List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, "line-layer-id");
+        if (featureList.size() > 0) {
+          for (Feature feature : featureList) {
+            GeoJsonSource source = style.getSourceAs("background-geojson-source-id");
+            if (source != null) {
+              source.setGeoJson(feature);
+              backgroundLineLayer.setProperties(visibility(VISIBLE));
+            }
+          }
         }
       }
-    }
-
-    return false;
+    });
+    return true;
   }
 
   /**
    * Set up the line layer source
    */
   private void initSource(@NonNull Style loadedMapStyle) {
-    loadedMapStyle.addSource(new GeoJsonSource("source-id", loadGeoJsonFromAsset(
-      "brussels_station_exits.geojson")));
+    try {
+      loadedMapStyle.addSource(new GeoJsonSource("source-id", new URI("asset://brussels_station_exits.geojson")));
+    } catch (URISyntaxException exception) {
+      Timber.d(exception);
+    }
     loadedMapStyle.addSource(new GeoJsonSource("background-geojson-source-id"));
   }
 
@@ -115,7 +115,7 @@ public class HighlightedLineActivity extends AppCompatActivity implements
    */
   private void initLayers(@NonNull Style loadedMapStyle) {
     // Add the regular LineLayer
-    routeLineLayer = new LineLayer("line-layer-id", "source-id");
+    LineLayer routeLineLayer = new LineLayer("line-layer-id", "source-id");
     routeLineLayer.setProperties(
       lineWidth(9f),
       lineColor(Color.BLUE),
@@ -184,21 +184,5 @@ public class HighlightedLineActivity extends AppCompatActivity implements
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     mapView.onSaveInstanceState(outState);
-  }
-
-  private String loadGeoJsonFromAsset(String filename) {
-    try {
-      // Load GeoJSON file from local asset folder
-      InputStream is = getAssets().open(filename);
-      int size = is.available();
-      byte[] buffer = new byte[size];
-      is.read(buffer);
-      is.close();
-      return new String(buffer, "UTF-8");
-    } catch (Exception exception) {
-      Timber.d("Exception loading GeoJSON: %s", exception.toString());
-      exception.printStackTrace();
-      return null;
-    }
   }
 }

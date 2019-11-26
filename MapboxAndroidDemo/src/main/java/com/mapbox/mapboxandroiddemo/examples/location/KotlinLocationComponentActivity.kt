@@ -1,10 +1,9 @@
 package com.mapbox.mapboxandroiddemo.examples.location
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -43,7 +42,7 @@ class KotlinLocationComponentActivity : AppCompatActivity(), OnMapReadyCallback,
 
   override fun onMapReady(mapboxMap: MapboxMap) {
     this.mapboxMap = mapboxMap
-    mapboxMap.setStyle(Style.Builder().fromUrl(
+    mapboxMap.setStyle(Style.Builder().fromUri(
             "mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7")) {
 
       // Map is set up and the style has loaded. Now you can add data or make other map adjustments
@@ -81,7 +80,6 @@ class KotlinLocationComponentActivity : AppCompatActivity(), OnMapReadyCallback,
         // Set the LocationComponent's render mode
         renderMode = RenderMode.COMPASS
       }
-
     } else {
       permissionsManager = PermissionsManager(this)
       permissionsManager.requestLocationPermissions(this)

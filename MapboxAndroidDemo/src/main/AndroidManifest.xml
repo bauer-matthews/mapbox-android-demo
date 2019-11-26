@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mapbox.mapboxandroiddemo">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,13 +19,16 @@
         android:required="false" />
 
     <application
+        android:name=".MapboxApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:launchMode="singleTop"
-        android:usesCleartextTraffic="true"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="placeholderString"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
         <uses-library
             android:name="com.google.android.wearable"
@@ -50,7 +54,7 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
-            android:name=".examples.basics.SimpleMapViewActivityKotlin"
+            android:name=".examples.basics.KotlinSimpleMapViewActivity"
             android:label="@string/activity_basic_mapbox_kotlin_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -85,6 +89,20 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.dds.RevealedPolygonHoleOutlineActivity"
+            android:label="@string/activity_dds_polygon_revealed_hole_outline_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.MultipleGeometriesDirectionsRouteActivity"
+            android:label="@string/activity_java_services_multiple_geometries_from_directions_route_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.dds.DrawPolygonActivity"
             android:label="@string/activity_dds_polygon_title">
             <meta-data
@@ -113,8 +131,22 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.offline.CacheManagementActivity"
+            android:label="@string/activity_offline_cache_management_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.javaservices.DirectionsActivity"
             android:label="@string/activity_java_services_directions_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.ElevationQueryActivity"
+            android:label="@string/activity_java_services_turf_elevation_query_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -136,6 +168,20 @@
         <activity
             android:name=".examples.javaservices.TilequeryActivity"
             android:label="@string/activity_java_services_tilequery_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.IsochroneSeekbarActivity"
+            android:label="@string/activity_java_services_isochrone_with_seekbar_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.TurfPhysicalCircleActivity"
+            android:label="@string/activity_java_services_turf_physical_circle_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -176,6 +222,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.location.LocationComponentCameraOptionsActivity"
+            android:label="@string/activity_location_location_component_camera_options_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.location.LocationComponentOptionsActivity"
             android:label="@string/activity_location_location_component_options_title">
             <meta-data
@@ -197,6 +250,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.location.LocationChangeListeningActivity"
+            android:label="@string/activity_location_location_change_listening_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.camera.BoundingBoxCameraActivity"
             android:label="@string/activity_camera_bounding_box_title">
             <meta-data
@@ -212,6 +272,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.dds.CircleRadiusActivity"
+            android:label="@string/activity_dds_circle_radius_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.labs.LocationPickerActivity"
             android:label="@string/activity_lab_location_picker_title">
             <meta-data
@@ -219,8 +286,36 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.labs.SharedPreferencesActivity"
+            android:label="@string/activity_lab_shared_preferences_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.labs.RecyclerViewOnMapActivity"
             android:label="@string/activity_lab_rv_on_map_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.DirectionsGradientLineActivity"
+            android:label="@string/activity_java_services_directions_gradient_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.labs.RecyclerViewDirectionsActivity"
+            android:label="@string/activity_lab_rv_directions_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.labs.ChangeAttributionColorActivity"
+            android:label="@string/activity_lab_change_attribution_color_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -234,7 +329,7 @@
         </activity>
         <activity
             android:name=".examples.labs.DashedLineDirectionsPickerActivity"
-            android:label="@string/activity_dashed_line_directions_picker_title">
+            android:label="@string/activity_lab_dashed_line_directions_picker_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -390,8 +485,8 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
-            android:name=".examples.styles.StyleFadeSwitchActivity"
-            android:label="@string/activity_styles_fade_switch_title">
+            android:name=".examples.styles.SatelliteOpacityOnZoomActivity"
+            android:label="@string/activity_styles_satellite_opacity_on_zoom_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -411,6 +506,20 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.styles.MissingIconActivity"
+            android:label="@string/activity_styles_missing_icon_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.styles.RuntimeStylingActivity"
+            android:label="@string/activity_styles_runtime_styling_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.query.QueryFeatureActivity"
             android:label="@string/activity_query_feature_title">
             <meta-data
@@ -420,6 +529,13 @@
         <activity
             android:name=".examples.dds.CreateHotspotsActivity"
             android:label="@string/activity_dds_create_hotspots_points_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.labs.MovingIconWithTrailingLineActivity"
+            android:label="@string/activity_lab_moving_icon_with_trailing_line_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -488,6 +604,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.styles.IconSizeChangeOnClickActivity"
+            android:label="@string/activity_styles_symbol_icon_onclick_size_change_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.styles.ImageSourceActivity"
             android:label="@string/activity_style_image_source_title">
             <meta-data
@@ -505,7 +628,15 @@
         <activity
             android:name=".examples.styles.RotatingTextAnchorPositionActivity"
             android:label="@string/activity_styles_rotating_anchor_text_title"
-            android:screenOrientation="portrait">]
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.styles.VariableLabelPlacementActivity"
+            android:label="@string/activity_styles_variable_label_placement_title"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -548,6 +679,20 @@
         <activity
             android:name=".examples.dds.KotlinStyleCirclesCategoricallyActivity"
             android:label="@string/activity_dds_style_kotlin_circle_categorically_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.basics.KotlinSupportMapFragmentActivity"
+            android:label="@string/activity_basic_kotlin_support_map_frag_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.dds.CircleToIconTransitionActivity"
+            android:label="@string/activity_dds_circle_to_icon_smooth_transition_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -630,6 +775,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.dds.PolygonSelectToggleActivity"
+            android:label="@string/activity_dds_polygon_select_toggle_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.dds.LineGradientActivity"
             android:label="@string/activity_dds_line_gradient_title">
             <meta-data
@@ -639,6 +791,14 @@
         <activity
             android:name=".examples.dds.SymbolSwitchOnZoomActivity"
             android:label="@string/activity_dds_symbol_zoom_switch_title">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.query.FingerDrawQueryActivity"
+            android:label="@string/activity_lab_drag_draw_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -668,6 +828,13 @@
         <activity
             android:name=".examples.plugins.BuildingPluginActivity"
             android:label="@string/activity_plugins_building_plugin_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.plugins.ScalebarPluginActivity"
+            android:label="@string/activity_plugins_scalebar_plugin_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
@@ -729,6 +896,13 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
+            android:name=".examples.dds.SymbolCollisionDetectionActivity"
+            android:label="@string/activity_dds_symbol_collision_detection_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
             android:name=".examples.snapshot.SnapshotShareActivity"
             android:label="@string/activity_image_generator_snapshot_share_title">
             <meta-data
@@ -761,10 +935,34 @@
         <activity
             android:name=".examples.labs.MapFogBackgroundActivity"
             android:label="@string/activity_lab_fog_background_title"
-        android:screenOrientation="portrait">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.labs.SpinningSymbolLayerIconActivity"
+            android:label="@string/activity_lab_spinning_icon_title"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.TurfRingActivity"
+            android:label="@string/activity_java_services_turf_ring_title"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".examples.javaservices.TurfLineDistanceActivity"
+            android:label="@string/activity_java_services_turf_line_distance_title"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
             android:name=".examples.labs.ValueAnimatorIconAnimationActivity"
@@ -776,7 +974,7 @@
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
         <activity
-            android:name=".labs.HomeScreenWidgetActivity"
+            android:name=".examples.labs.HomeScreenWidgetActivity"
             android:label="@string/activity_lab_home_screen_widget_title"
             android:screenOrientation="portrait">
             <meta-data
@@ -798,6 +996,23 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
         </activity>
+        <activity
+            android:name=".examples.ChinaBoundsCheckerActivity"
+            android:label="@string/activity_china_simple_china_bounds_checker_title"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".examples.MixedChinaAndGlobalStyleActivity"
+            android:label="@string/activity_china_mixed_china_and_global_style_title"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
+        </activity>
 
         <service android:name=".account.AccountRetrievalService" />
     <receiver android:name=".utils.DemoAppHomeScreenAddressWidget">
@@ -809,6 +1024,25 @@
             android:name="android.appwidget.provider"
             android:resource="@xml/demo_app_home_screen_widget_info" />
     </receiver>
+        <!-- Set value to true to have SKU token generation on -->
+        <meta-data
+            android:name="com.mapbox.EnableSkuToken"
+            android:value="true" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/mapbox_logo_icon" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/mapboxBlueDark" />
+
+        <service android:name=".utils.CustomFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

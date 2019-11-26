@@ -2,9 +2,9 @@ package com.mapbox.mapboxandroiddemo.examples.labs;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -24,6 +24,7 @@ import com.mapbox.turf.TurfJoins;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -220,7 +221,7 @@ public class IndoorMapActivity extends AppCompatActivity {
       byte[] buffer = new byte[size];
       is.read(buffer);
       is.close();
-      return new String(buffer, "UTF-8");
+      return new String(buffer, Charset.forName("UTF-8"));
 
     } catch (IOException ex) {
       ex.printStackTrace();

@@ -1,29 +1,36 @@
 package com.mapbox.mapboxandroiddemo;
 
-import android.support.multidex.MultiDexApplication;
-
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+import com.mapbox.mapboxandroiddemo.utils.TileLoadingInterceptor;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.module.http.HttpRequestUtil;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+
+import androidx.multidex.MultiDexApplication;
+import io.fabric.sdk.android.Fabric;
+import okhttp3.OkHttpClient;
 
 public class MapboxApplication extends MultiDexApplication {
 
   @Override
   public void onCreate() {
     super.onCreate();
-    initializeFirebaseApp();
     setUpPicasso();
+    if (!BuildConfig.DEBUG) {
+      FirebaseApp.initializeApp(this);
+      setUpCrashlytics();
+    }
     Mapbox.getInstance(this, getString(R.string.access_token));
-  }
-
-  private void initializeFirebaseApp() {
-    FirebaseApp.initializeApp(this, new FirebaseOptions.Builder()
-      .setApiKey(getString(R.string.firebase_api_key))
-      .setApplicationId(getString(R.string.firebase_app_id))
-      .build()
-    );
+    if (BuildConfig.DEBUG) {
+      if (Mapbox.getTelemetry() == null) {
+        throw new RuntimeException("Mapbox.getTelemetry() == null in debug config");
+      } else {
+        Mapbox.getTelemetry().setDebugLoggingEnabled(true);
+      }
+    }
+    setUpTileLoadingMeasurement();
   }
 
   private void setUpPicasso() {
@@ -32,5 +39,16 @@ public class MapboxApplication extends MultiDexApplication {
     Picasso built = builder.build();
     built.setLoggingEnabled(true);
     Picasso.setSingletonInstance(built);
+  }
+
+  private void setUpTileLoadingMeasurement() {
+    OkHttpClient okHttpClient = new OkHttpClient.Builder()
+      .addNetworkInterceptor(new TileLoadingInterceptor())
+      .build();
+    HttpRequestUtil.setOkHttpClient(okHttpClient);
+  }
+
+  private void setUpCrashlytics() {
+    Fabric.with(this, new Crashlytics());
   }
 }

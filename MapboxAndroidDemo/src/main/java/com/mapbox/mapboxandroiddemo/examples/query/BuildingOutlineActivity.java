@@ -3,8 +3,8 @@ package com.mapbox.mapboxandroiddemo.examples.query;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -39,11 +39,10 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
  * Query the building layer to draw an outline around the building that is in the middle of the map
  */
 public class BuildingOutlineActivity extends AppCompatActivity implements
-  OnMapReadyCallback, MapboxMap.OnCameraIdleListener {
+    OnMapReadyCallback, MapboxMap.OnCameraIdleListener {
 
   private MapView mapView;
   private MapboxMap mapboxMap;
-  private FeatureCollection featureCollection;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +69,8 @@ public class BuildingOutlineActivity extends AppCompatActivity implements
         setUpLineLayer(style);
         mapboxMap.addOnCameraIdleListener(BuildingOutlineActivity.this);
         showCrosshair();
-        Toast.makeText(BuildingOutlineActivity.this, R.string.move_map_around_instruction,
-          Toast.LENGTH_SHORT).show();
+        Toast.makeText(BuildingOutlineActivity.this, R.string.move_map_around_building_out_instruction,
+            Toast.LENGTH_SHORT).show();
         updateOutline(style);
       }
     });
@@ -83,25 +82,25 @@ public class BuildingOutlineActivity extends AppCompatActivity implements
   private void setUpLineLayer(@NonNull Style loadedMapStyle) {
     // Create a GeoJSONSource from an empty FeatureCollection
     loadedMapStyle.addSource(new GeoJsonSource("source",
-      FeatureCollection.fromFeatures(new Feature[] {})));
+        FeatureCollection.fromFeatures(new Feature[]{})));
 
     // Use runtime styling to adjust the look of the building outline LineLayer
     loadedMapStyle.addLayer(new LineLayer("lineLayer", "source").withProperties(
-      lineColor(Color.RED),
-      lineWidth(6f),
-      lineCap(LINE_CAP_ROUND),
-      lineJoin(LINE_JOIN_BEVEL)
+        lineColor(Color.RED),
+        lineWidth(6f),
+        lineCap(LINE_CAP_ROUND),
+        lineJoin(LINE_JOIN_BEVEL)
     ));
   }
 
   @Override
   public void onCameraIdle() {
-    Style style = mapboxMap.getStyle();
-    if (style != null) {
-      updateOutline(style);
-    } else {
-      Toast.makeText(this, R.string.building_layer_not_present, Toast.LENGTH_SHORT).show();
-    }
+    mapboxMap.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        updateOutline(style);
+      }
+    });
   }
 
   /**
@@ -114,8 +113,8 @@ public class BuildingOutlineActivity extends AppCompatActivity implements
   private LineString getBuildingFeatureOutline(@NonNull Style style) {
     // Retrieve the middle of the map
     final PointF pixel = mapboxMap.getProjection().toScreenLocation(new LatLng(
-      mapboxMap.getCameraPosition().target.getLatitude(),
-      mapboxMap.getCameraPosition().target.getLongitude()
+        mapboxMap.getCameraPosition().target.getLatitude(),
+        mapboxMap.getCameraPosition().target.getLongitude()
     ));
 
     List<Point> pointList = new ArrayList<>();
@@ -126,19 +125,25 @@ public class BuildingOutlineActivity extends AppCompatActivity implements
       // Retrieve the building Feature that is displayed in the middle of the map
       List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "building");
       if (features.size() > 0) {
-        Feature buildingFeature = features.get(0);
-        // Build a list of Point objects from the building Feature's coordinates
-        for (int i = 0; i < ((Polygon) buildingFeature.geometry()).coordinates().size(); i++) {
-          for (int j = 0;
-               j < ((Polygon) buildingFeature.geometry()).coordinates().get(i).size(); j++) {
-            pointList.add(Point.fromLngLat(
-              ((Polygon) buildingFeature.geometry()).coordinates().get(i).get(j).longitude(),
-              ((Polygon) buildingFeature.geometry()).coordinates().get(i).get(j).latitude()
-            ));
+        if (features.get(0).geometry() instanceof Polygon) {
+          Polygon buildingFeature = (Polygon) features.get(0).geometry();
+          // Build a list of Point objects from the building Feature's coordinates
+          if (buildingFeature != null) {
+            for (int i = 0; i < buildingFeature.coordinates().size(); i++) {
+              for (int j = 0;
+                   j < buildingFeature.coordinates().get(i).size(); j++) {
+                pointList.add(Point.fromLngLat(
+                  buildingFeature.coordinates().get(i).get(j).longitude(),
+                  buildingFeature.coordinates().get(i).get(j).latitude()
+                ));
+              }
+            }
           }
         }
         // Create a LineString from the list of Point objects
       }
+    } else {
+      Toast.makeText(this, R.string.building_layer_not_present, Toast.LENGTH_SHORT).show();
     }
     return LineString.fromLngLats(pointList);
   }
@@ -148,7 +153,7 @@ public class BuildingOutlineActivity extends AppCompatActivity implements
    */
   private void updateOutline(@NonNull Style style) {
     // Update the data source used by the building outline LineLayer and refresh the map
-    featureCollection = FeatureCollection.fromFeatures(new Feature[]
+    FeatureCollection featureCollection = FeatureCollection.fromFeatures(new Feature[]
       {Feature.fromGeometry(getBuildingFeatureOutline(style))});
     GeoJsonSource source = style.getSourceAs("source");
     if (source != null) {

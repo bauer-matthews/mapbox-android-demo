@@ -1,8 +1,8 @@
 package com.mapbox.mapboxandroiddemo.examples.location;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -50,7 +50,7 @@ public class LocationComponentActivity extends AppCompatActivity implements
   public void onMapReady(@NonNull final MapboxMap mapboxMap) {
     LocationComponentActivity.this.mapboxMap = mapboxMap;
 
-    mapboxMap.setStyle(new Style.Builder().fromUrl("mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7"),
+    mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7"),
       new Style.OnStyleLoaded() {
         @Override
         public void onStyleLoaded(@NonNull Style style) {

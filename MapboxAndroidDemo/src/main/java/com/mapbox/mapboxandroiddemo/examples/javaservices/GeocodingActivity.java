@@ -1,9 +1,9 @@
 package com.mapbox.mapboxandroiddemo.examples.javaservices;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ListPopupWindow;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ListPopupWindow;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -195,16 +195,18 @@ public class GeocodingActivity extends AppCompatActivity implements OnMapReadyCa
         @Override
         public void onResponse(Call<GeocodingResponse> call,
                                Response<GeocodingResponse> response) {
-          List<CarmenFeature> results = response.body().features();
-          if (results.size() > 0) {
+          if (response.body() != null) {
+            List<CarmenFeature> results = response.body().features();
+            if (results.size() > 0) {
 
-            // Get the first Feature from the successful geocoding response
-            CarmenFeature feature = results.get(0);
-            geocodeResultTextView.setText(feature.toString());
-            animateCameraToNewPosition(latLng);
-          } else {
-            Toast.makeText(GeocodingActivity.this, R.string.no_results,
-              Toast.LENGTH_SHORT).show();
+              // Get the first Feature from the successful geocoding response
+              CarmenFeature feature = results.get(0);
+              geocodeResultTextView.setText(feature.toString());
+              animateCameraToNewPosition(latLng);
+            } else {
+              Toast.makeText(GeocodingActivity.this, R.string.no_results,
+                Toast.LENGTH_SHORT).show();
+            }
           }
         }
 

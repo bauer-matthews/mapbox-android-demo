@@ -91,17 +91,22 @@
 -dontwarn java.awt.Color
 -dontwarn com.mapbox.api.staticmap.v1.models.StaticMarkerAnnotation
 -dontwarn com.mapbox.api.staticmap.v1.models.StaticPolylineAnnotation
+-dontwarn com.sun.istack.internal.NotNull
 
 # Mapbox
 -keep class com.mapbox.android.telemetry.**
 -keep class com.mapbox.android.core.location.**
 -keep class android.arch.lifecycle.** { *; }
 -keep class com.mapbox.android.core.location.** { *; }
--keep class com.mapbox.mapboxsdk.** { *; }
+-dontnote com.mapbox.mapboxsdk.**
+-dontnote com.mapbox.android.gestures.**
+-dontnote com.mapbox.mapboxsdk.plugins.**
 
 # Other Android
 -keep public class com.google.firebase.** { public *; }
 -keep class com.google.firebase.** { *; }
+-dontnote com.google.firebase.**
+-dontnote com.google.android.gms.internal.**
 -dontnote android.net.http.*
 -dontnote org.apache.commons.codec.**
 -dontnote org.apache.http.**

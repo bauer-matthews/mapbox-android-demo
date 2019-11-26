@@ -5,10 +5,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -113,7 +113,7 @@ public class ExpressionIntegrationActivity
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_dds_temperature_change);
+    setContentView(R.layout.activity_dds_multiple_expression_integration);
 
     unitsFab = findViewById(R.id.change_units_fab);
 
@@ -140,8 +140,7 @@ public class ExpressionIntegrationActivity
     // Retrieves GeoJSON from local file and adds it to the map
     GeoJsonSource geoJsonSource = new GeoJsonSource(GEOJSON_SRC_ID, featureCollection);
     if (mapboxMap != null) {
-      final Style style = mapboxMap.getStyle();
-      if (style != null) {
+      mapboxMap.getStyle(style -> {
         style.addSource(geoJsonSource);
         initTemperatureLayers(style);
         populateMenu();
@@ -159,7 +158,7 @@ public class ExpressionIntegrationActivity
             }
           }
         });
-      }
+      });
     }
   }
 
@@ -184,26 +183,28 @@ public class ExpressionIntegrationActivity
 
           // Find out the states represented in the FeatureCollection
           // and bounds of the extreme conditions
-          for (Feature feature : featureCollection.features()) {
-            String stateName = feature.getStringProperty("state");
-            String lat = feature.getStringProperty("latitude");
-            String lon = feature.getStringProperty("longitude");
+          if (featureCollection.features() != null) {
+            for (Feature feature : featureCollection.features()) {
+              String stateName = feature.getStringProperty("state");
+              String lat = feature.getStringProperty("latitude");
+              String lon = feature.getStringProperty("longitude");
 
-            LatLng latLng = new LatLng(
-              Double.parseDouble(lat),
-              Double.parseDouble(lon));
+              LatLng latLng = new LatLng(
+                Double.parseDouble(lat),
+                Double.parseDouble(lon));
 
-            State state = null;
-            for (State curState : activity.states) {
-              if (curState.name.equals(stateName)) {
-                state = curState;
-                break;
+              State state = null;
+              for (State curState : activity.states) {
+                if (curState.name.equals(stateName)) {
+                  state = curState;
+                  break;
+                }
               }
-            }
-            if (state == null) {
-              activity.states.add(activity.createState(stateName, latLng));
-            } else {
-              state.add(latLng);
+              if (state == null) {
+                activity.states.add(activity.createState(stateName, latLng));
+              } else {
+                state.add(latLng);
+              }
             }
           }
           return featureCollection;
@@ -293,12 +294,16 @@ public class ExpressionIntegrationActivity
 
       // Apply new units to the data displayed in text fields of SymbolLayers
       SymbolLayer maxTempLayer = (SymbolLayer) loadedMapStyle.getLayer(MAX_TEMP_LAYER_ID);
-      maxTempLayer.withProperties(textField(getTemperatureValue()));
+      if (maxTempLayer != null) {
+        maxTempLayer.withProperties(textField(getTemperatureValue()));
+      }
 
       SymbolLayer minTempLayer = (SymbolLayer) loadedMapStyle.getLayer(MIN_TEMP_LAYER_ID);
-      minTempLayer.withProperties(textField(getTemperatureValue()));
-
+      if (minTempLayer != null) {
+        minTempLayer.withProperties(textField(getTemperatureValue()));
+      }
       unitsText.setText(isImperial ? DEGREES_C : DEGREES_F);
+
     }
   }
 
@@ -404,17 +409,20 @@ public class ExpressionIntegrationActivity
       // Adds a SymbolLayer to display maximum temperature in state
       SymbolLayer maxTempLayer = (SymbolLayer) loadedMapStyle.getLayer(MAX_TEMP_LAYER_ID);
       // Only display Maximum Temperature in this layer for SELECTED State
-      maxTempLayer.setFilter(all(
-        eq(get("element"), literal("All-Time Maximum Temperature")),
-        eq(get("state"), literal(stateName))));
-
+      if (maxTempLayer != null) {
+        maxTempLayer.setFilter(all(
+          eq(get("element"), literal("All-Time Maximum Temperature")),
+          eq(get("state"), literal(stateName))));
+      }
 
       // Adds a SymbolLayer to display minimum temperature in state
       SymbolLayer minTempLayer = (SymbolLayer) loadedMapStyle.getLayer(MIN_TEMP_LAYER_ID);
       // Only display Maximum Temperature in this layer for SELECTED State
-      minTempLayer.setFilter(all(
-        eq(get("element"), literal("All-Time Minimum Temperature")),
-        eq(get("state"), literal(stateName))));
+      if (minTempLayer != null) {
+        minTempLayer.setFilter(all(
+          eq(get("element"), literal("All-Time Minimum Temperature")),
+          eq(get("state"), literal(stateName))));
+      }
 
       CameraUpdate cameraUpdate =
         CameraUpdateFactory.newLatLngBounds(states.get(stateIndex).bounds, 100);
@@ -422,13 +430,12 @@ public class ExpressionIntegrationActivity
 
       Toast.makeText(this,
         String.format(getString(R.string.temp_change_feedback), stateName),
-        Toast.LENGTH_LONG)
-        .show();
+        Toast.LENGTH_LONG).show();
     }
   }
 
   private int indexOfState(CharSequence name) {
-    if (states != null && name != null) {
+    if (name != null) {
       for (int i = 0; i < states.size(); i++) {
         if (name.equals(states.get(i).name)) {
           return i;

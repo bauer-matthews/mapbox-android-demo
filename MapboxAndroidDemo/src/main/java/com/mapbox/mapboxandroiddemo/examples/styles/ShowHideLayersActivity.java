@@ -2,8 +2,8 @@ package com.mapbox.mapboxandroiddemo.examples.styles;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import com.mapbox.mapboxandroiddemo.R;
@@ -117,13 +117,18 @@ public class ShowHideLayersActivity extends AppCompatActivity {
   }
 
   private void toggleLayer() {
-    Layer layer = map.getStyle().getLayer("museums");
-    if (layer != null) {
-      if (VISIBLE.equals(layer.getVisibility().getValue())) {
-        layer.setProperties(visibility(NONE));
-      } else {
-        layer.setProperties(visibility(VISIBLE));
+    map.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        Layer layer = style.getLayer("museums");
+        if (layer != null) {
+          if (VISIBLE.equals(layer.getVisibility().getValue())) {
+            layer.setProperties(visibility(NONE));
+          } else {
+            layer.setProperties(visibility(VISIBLE));
+          }
+        }
       }
-    }
+    });
   }
 }

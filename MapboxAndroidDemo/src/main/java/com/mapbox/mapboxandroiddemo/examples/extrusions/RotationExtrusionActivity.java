@@ -7,8 +7,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.mapboxandroiddemo.R;
@@ -83,9 +83,10 @@ public class RotationExtrusionActivity extends AppCompatActivity implements Sens
     super.onStart();
     mapView.onStart();
     sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-    sensorControl = new SensorControl(sensorManager);
-
-    registerSensorListeners();
+    if (sensorManager != null) {
+      sensorControl = new SensorControl(sensorManager);
+      registerSensorListeners();
+    }
   }
 
   @Override
@@ -158,12 +159,10 @@ public class RotationExtrusionActivity extends AppCompatActivity implements Sens
     float pitch = orientation[1];
     float roll = orientation[2];
 
-    CameraPosition position = new CameraPosition.Builder()
+    return new CameraPosition.Builder()
       .tilt(pitch * PITCH_AMPLIFIER)
       .bearing(roll * BEARING_AMPLIFIER)
       .build();
-
-    return position;
   }
 
   private void registerSensorListeners() {

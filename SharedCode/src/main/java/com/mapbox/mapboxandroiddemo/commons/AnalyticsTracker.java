@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
@@ -14,6 +14,7 @@ import com.segment.analytics.messages.TrackMessage;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 
 /**
  * This class abstracts various analytics calls to Segment analytics' Java library.
@@ -32,6 +33,8 @@ public class AnalyticsTracker {
   public static final String LOGGED_OUT_OF_MAPBOX_ACCOUNT = "Logged out of Mapbox account";
   public static final String CLICKED_ON_CREATE_ACCOUNT_BUTTON = "Clicked on create account button";
   public static final String CLICKED_ON_SIGN_IN_BUTTON = "Clicked on sign in button";
+  public static final String CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON = "Clicked on do not ask sign in again button";
+  public static final String CLICKED_ON_ACCOUNT_CREATION_OR_LOGIN_BUTTON = "Clicked account creation or login button in settings";
 
   private Context appContext;
   private static volatile AnalyticsTracker analyticsInstance;
@@ -92,7 +95,11 @@ public class AnalyticsTracker {
     properties.put("tags", Build.TAGS);
     properties.put("iso3 language", Locale.getDefault().getISO3Language());
     properties.put("language", Locale.getDefault().getLanguage());
-    properties.put("iso3 country", Locale.getDefault().getISO3Country());
+    try {
+      properties.put("iso3 country", Locale.getDefault().getISO3Country());
+    } catch (MissingResourceException exception) {
+      // Empty on purpose. No need to do anything.
+    }
     properties.put("country", Locale.getDefault().getCountry());
     properties.put("display country", Locale.getDefault().getDisplayCountry());
     properties.put("display name", Locale.getDefault().getDisplayName());

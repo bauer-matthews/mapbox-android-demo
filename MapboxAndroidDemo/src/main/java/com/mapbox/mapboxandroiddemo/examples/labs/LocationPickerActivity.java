@@ -2,9 +2,6 @@ package com.mapbox.mapboxandroiddemo.examples.labs;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,23 +17,27 @@ import com.mapbox.api.geocoding.v5.MapboxGeocoding;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse;
 import com.mapbox.core.exceptions.ServicesException;
-import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,13 +56,13 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  */
 public class LocationPickerActivity extends AppCompatActivity implements PermissionsListener, OnMapReadyCallback {
 
-  private static final String TAG = "LocationPickerActivity";
   private static final String DROPPED_MARKER_LAYER_ID = "DROPPED_MARKER_LAYER_ID";
   private MapView mapView;
   private MapboxMap mapboxMap;
   private Button selectLocationButton;
   private PermissionsManager permissionsManager;
   private ImageView hoveringMarker;
+  private Layer droppedMarkerLayer;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -129,14 +130,16 @@ public class LocationPickerActivity extends AppCompatActivity implements Permiss
               if (style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
                 GeoJsonSource source = style.getSourceAs("dropped-marker-source-id");
                 if (source != null) {
-                  source.setGeoJson(Feature.fromGeometry(Point.fromLngLat(
-                    mapTargetLatLng.getLongitude(), mapTargetLatLng.getLatitude())));
+                  source.setGeoJson(Point.fromLngLat(mapTargetLatLng.getLongitude(), mapTargetLatLng.getLatitude()));
                 }
-                style.getLayer(DROPPED_MARKER_LAYER_ID).setProperties(visibility(VISIBLE));
+                droppedMarkerLayer = style.getLayer(DROPPED_MARKER_LAYER_ID);
+                if (droppedMarkerLayer != null) {
+                  droppedMarkerLayer.setProperties(visibility(VISIBLE));
+                }
               }
 
               // Use the map camera target's coordinates to make a reverse geocoding search
-              reverseGeocode(style, Point.fromLngLat(mapTargetLatLng.getLongitude(), mapTargetLatLng.getLatitude()));
+              reverseGeocode(Point.fromLngLat(mapTargetLatLng.getLongitude(), mapTargetLatLng.getLatitude()));
 
             } else {
 
@@ -149,8 +152,9 @@ public class LocationPickerActivity extends AppCompatActivity implements Permiss
               hoveringMarker.setVisibility(View.VISIBLE);
 
               // Hide the selected location SymbolLayer
-              if (style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
-                style.getLayer(DROPPED_MARKER_LAYER_ID).setProperties(visibility(NONE));
+              droppedMarkerLayer = style.getLayer(DROPPED_MARKER_LAYER_ID);
+              if (droppedMarkerLayer != null) {
+                droppedMarkerLayer.setProperties(visibility(NONE));
               }
             }
           }
@@ -243,11 +247,10 @@ public class LocationPickerActivity extends AppCompatActivity implements Permiss
   /**
    * This method is used to reverse geocode where the user has dropped the marker.
    *
-   * @param style style
    * @param point The location to use for the search
    */
 
-  private void reverseGeocode(@NonNull final Style style, final Point point) {
+  private void reverseGeocode(final Point point) {
     try {
       MapboxGeocoding client = MapboxGeocoding.builder()
         .accessToken(getString(R.string.access_token))
@@ -259,20 +262,27 @@ public class LocationPickerActivity extends AppCompatActivity implements Permiss
         @Override
         public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
 
-          List<CarmenFeature> results = response.body().features();
-          if (results.size() > 0) {
-            CarmenFeature feature = results.get(0);
+          if (response.body() != null) {
+            List<CarmenFeature> results = response.body().features();
+            if (results.size() > 0) {
+              CarmenFeature feature = results.get(0);
 
-            // If the geocoder returns a result, we take the first in the list and show a Toast with the place name.
-            if (style.isFullyLoaded() && style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
+              // If the geocoder returns a result, we take the first in the list and show a Toast with the place name.
+              mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                  if (style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
+                    Toast.makeText(LocationPickerActivity.this,
+                        String.format(getString(R.string.location_picker_place_name_result),
+                            feature.placeName()), Toast.LENGTH_SHORT).show();
+                  }
+                }
+              });
+
+            } else {
               Toast.makeText(LocationPickerActivity.this,
-                String.format(getString(R.string.location_picker_place_name_result),
-                  feature.placeName()), Toast.LENGTH_SHORT).show();
+                  getString(R.string.location_picker_dropped_marker_snippet_no_results), Toast.LENGTH_SHORT).show();
             }
-
-          } else {
-            Toast.makeText(LocationPickerActivity.this,
-              getString(R.string.location_picker_dropped_marker_snippet_no_results), Toast.LENGTH_SHORT).show();
           }
         }
 
@@ -295,7 +305,8 @@ public class LocationPickerActivity extends AppCompatActivity implements Permiss
       // Get an instance of the component. Adding in LocationComponentOptions is also an optional
       // parameter
       LocationComponent locationComponent = mapboxMap.getLocationComponent();
-      locationComponent.activateLocationComponent(this, loadedMapStyle);
+      locationComponent.activateLocationComponent(LocationComponentActivationOptions.builder(
+        this, loadedMapStyle).build());
       locationComponent.setLocationComponentEnabled(true);
 
       // Set the component's camera mode

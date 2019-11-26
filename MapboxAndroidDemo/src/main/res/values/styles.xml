@@ -22,4 +22,5 @@
         <item name="android:textColor">@color/mapboxWhite</item>
     </style>
 
+
 </resources>

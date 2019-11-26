@@ -3,9 +3,9 @@ package com.mapbox.mapboxandroiddemo.examples.javaservices;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.api.matching.v5.MapboxMapMatching;
 import com.mapbox.api.matching.v5.models.MapMatchingMatching;
@@ -168,17 +168,14 @@ public class MapMatchingActivity extends AppCompatActivity {
   }
 
   private void drawBeforeMapMatching(Feature feature) {
-    Style style = map.getStyle();
-    if (style != null) {
+    map.getStyle(style -> {
       style.addSource(new GeoJsonSource("pre-matched-source-id", feature));
       style.addLayer(new LineLayer("pre-matched-layer-id", "pre-matched-source-id").withProperties(
-        lineColor(ColorUtils.colorToRgbaString(Color.parseColor("#3bb2d0"))),
+        lineColor(ColorUtils.colorToRgbaString(Color.parseColor("#c14a00"))),
         lineWidth(6f),
         lineOpacity(1f)
       ));
-    } else {
-      throw new IllegalStateException("Style isn't ready yet.");
-    }
+    });
   }
 
   private void requestMapMatched(Feature feature) {

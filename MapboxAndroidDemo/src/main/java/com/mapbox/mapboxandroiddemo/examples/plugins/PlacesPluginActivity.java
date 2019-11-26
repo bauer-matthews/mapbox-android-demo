@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import com.google.gson.JsonObject;
@@ -90,7 +90,7 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
       @Override
       public void onClick(View view) {
         Intent intent = new PlaceAutocomplete.IntentBuilder()
-          .accessToken(Mapbox.getAccessToken())
+          .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.access_token))
           .placeOptions(PlaceOptions.builder()
             .backgroundColor(Color.parseColor("#EEEEEE"))
             .limit(10)
@@ -105,8 +105,8 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
 
   private void addUserLocations() {
     home = CarmenFeature.builder().text("Mapbox SF Office")
-      .geometry(Point.fromLngLat(-122.399854, 37.7884400))
-      .placeName("50 Beale st, San Francisco, CA")
+      .geometry(Point.fromLngLat(-122.3964485, 37.7912561))
+      .placeName("50 Beale St, San Francisco, CA")
       .id("mapbox-sf")
       .properties(new JsonObject())
       .build();

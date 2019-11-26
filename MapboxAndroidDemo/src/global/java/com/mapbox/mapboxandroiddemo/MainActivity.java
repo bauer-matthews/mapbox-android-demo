@@ -6,15 +6,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,13 +17,16 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.perf.metrics.AddTrace;
+import com.mapbox.mapboxandroiddemo.account.LandingActivity;
 import com.mapbox.mapboxandroiddemo.adapter.ExampleAdapter;
 import com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker;
 import com.mapbox.mapboxandroiddemo.commons.FirstTimeRunChecker;
+import com.mapbox.mapboxandroiddemo.examples.basics.KotlinSimpleMapViewActivity;
+import com.mapbox.mapboxandroiddemo.examples.basics.KotlinSupportMapFragmentActivity;
 import com.mapbox.mapboxandroiddemo.examples.basics.MapboxMapOptionActivity;
 import com.mapbox.mapboxandroiddemo.examples.basics.SimpleMapViewActivity;
-import com.mapbox.mapboxandroiddemo.examples.basics.SimpleMapViewActivityKotlin;
 import com.mapbox.mapboxandroiddemo.examples.basics.SupportMapFragmentActivity;
 import com.mapbox.mapboxandroiddemo.examples.camera.AnimateMapCameraActivity;
 import com.mapbox.mapboxandroiddemo.examples.camera.BoundingBoxCameraActivity;
@@ -43,6 +37,8 @@ import com.mapbox.mapboxandroiddemo.examples.dds.BathymetryActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.ChoroplethJsonVectorMixActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.ChoroplethZoomChangeActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.CircleLayerClusteringActivity;
+import com.mapbox.mapboxandroiddemo.examples.dds.CircleRadiusActivity;
+import com.mapbox.mapboxandroiddemo.examples.dds.CircleToIconTransitionActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.CreateHotspotsActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.DrawGeojsonLineActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.DrawPolygonActivity;
@@ -55,9 +51,12 @@ import com.mapbox.mapboxandroiddemo.examples.dds.LineGradientActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.MultipleGeometriesActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.MultipleHeatmapStylingActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.PolygonHolesActivity;
+import com.mapbox.mapboxandroiddemo.examples.dds.PolygonSelectToggleActivity;
+import com.mapbox.mapboxandroiddemo.examples.dds.RevealedPolygonHoleOutlineActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.SatelliteLandSelectActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.StyleCirclesCategoricallyActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.StyleLineIdentityPropertyActivity;
+import com.mapbox.mapboxandroiddemo.examples.dds.SymbolCollisionDetectionActivity;
 import com.mapbox.mapboxandroiddemo.examples.dds.SymbolSwitchOnZoomActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.AdjustExtrusionLightActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.Indoor3DMapActivity;
@@ -65,47 +64,64 @@ import com.mapbox.mapboxandroiddemo.examples.extrusions.MarathonExtrusionActivit
 import com.mapbox.mapboxandroiddemo.examples.extrusions.PopulationDensityExtrusionActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.RotationExtrusionActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.DirectionsActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.DirectionsGradientLineActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.ElevationQueryActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.GeocodingActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.IsochroneActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.IsochroneSeekbarActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.MapMatchingActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.MatrixApiActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.MultipleGeometriesDirectionsRouteActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.OptimizationActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.SimplifyPolylineActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.StaticImageActivity;
 import com.mapbox.mapboxandroiddemo.examples.javaservices.TilequeryActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.TurfLineDistanceActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.TurfPhysicalCircleActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.TurfRingActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.AnimatedImageGifActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.AnimatedMarkerActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.CalendarIntegrationActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.ChangeAttributionColorActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.DashedLineDirectionsPickerActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.HomeScreenWidgetActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.IndoorMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.InsetMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.LocationPickerActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.MagicWindowKotlinActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.MapFogBackgroundActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.MarkerFollowingRouteActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.MovingIconWithTrailingLineActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.PictureInPictureActivity;
-import com.mapbox.mapboxandroiddemo.examples.labs.ValueAnimatorIconAnimationActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.PulsingLayerOpacityColorActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.RecyclerViewDirectionsActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.RecyclerViewOnMapActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.SharedPreferencesActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SnakingDirectionsRouteActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SpaceStationLocationActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.SpinningSymbolLayerIconActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SymbolLayerMapillaryActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.ValueAnimatorIconAnimationActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.KotlinLocationComponentActivity;
+import com.mapbox.mapboxandroiddemo.examples.location.LocationChangeListeningActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentActivity;
+import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentCameraOptionsActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentFragmentActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentOptionsActivity;
+import com.mapbox.mapboxandroiddemo.examples.offline.CacheManagementActivity;
 import com.mapbox.mapboxandroiddemo.examples.offline.OfflineManagerActivity;
 import com.mapbox.mapboxandroiddemo.examples.offline.SimpleOfflineMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.BuildingPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.LocalizationPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.MarkerViewPluginActivity;
-import com.mapbox.mapboxandroiddemo.examples.plugins.PlaceSelectionPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.PlacesPluginActivity;
+import com.mapbox.mapboxandroiddemo.examples.plugins.ScalebarPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.SymbolListenerActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.TrafficPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.BuildingOutlineActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.ClickOnLayerActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.FeatureCountActivity;
+import com.mapbox.mapboxandroiddemo.examples.query.FingerDrawQueryActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.HighlightedLineActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.QueryFeatureActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.RedoSearchInAreaActivity;
@@ -120,21 +136,24 @@ import com.mapbox.mapboxandroiddemo.examples.styles.ColorSwitcherActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.DefaultStyleActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.GeojsonLayerInStackActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.HillShadeActivity;
+import com.mapbox.mapboxandroiddemo.examples.styles.IconSizeChangeOnClickActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.ImageSourceActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.ImageSourceTimeLapseActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.LanguageSwitchActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.LineLayerActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.LocalStyleSourceActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.MapboxStudioStyleActivity;
+import com.mapbox.mapboxandroiddemo.examples.styles.MissingIconActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.RotatingTextAnchorPositionActivity;
+import com.mapbox.mapboxandroiddemo.examples.styles.RuntimeStylingActivity;
+import com.mapbox.mapboxandroiddemo.examples.styles.SatelliteOpacityOnZoomActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.ShowHideLayersActivity;
-import com.mapbox.mapboxandroiddemo.examples.styles.StyleFadeSwitchActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.TextFieldFormattingActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.TextFieldMultipleFormatsActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.TransparentBackgroundActivity;
+import com.mapbox.mapboxandroiddemo.examples.styles.VariableLabelPlacementActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.VectorSourceActivity;
 import com.mapbox.mapboxandroiddemo.examples.styles.ZoomDependentFillColorActivity;
-import com.mapbox.mapboxandroiddemo.labs.HomeScreenWidgetActivity;
 import com.mapbox.mapboxandroiddemo.model.ExampleItemModel;
 import com.mapbox.mapboxandroiddemo.utils.ItemClickSupport;
 import com.mapbox.mapboxandroiddemo.utils.SettingsDialogView;
@@ -142,6 +161,14 @@ import com.mapbox.mapboxandroiddemo.utils.SettingsDialogView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import timber.log.Timber;
 
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_INFO_DIALOG_NOT_NOW;
@@ -150,15 +177,18 @@ import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_I
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_SETTINGS_IN_NAV_DRAWER;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.OPENED_APP;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.SKIPPED_ACCOUNT_CREATION;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_LOGIN_SCREEN_MENU_ITEM_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.SKIPPED_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.TOKEN_SAVED_KEY;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+  ItemClickSupport.OnItemClickListener {
   // Used to track internal navigation to the Snapshotter section
   private static final String EXTRA_NAV = "EXTRA_NAV";
   private static final String STATE_CURRENT_CATEGORY = "STATE_CURRENT_CATEGORY";
   private static final String STATE_TOOLBAR_TITLE = "STATE_TOOLBAR_TITLE";
   private static final String STATE_SHOW_JAVA = "STATE_SHOW_JAVA";
+  private static final String TAG = "MainActivity";
 
   private final ArrayList<ExampleItemModel> exampleItemModels = new ArrayList<>();
 
@@ -170,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private ExampleAdapter adapter;
   private RecyclerView recyclerView;
   private TextView noExamplesTv;
+  private ItemClickSupport itemClickSupport;
 
   private boolean loggedIn;
   private int currentCategory = R.id.nav_basics;
@@ -180,6 +211,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    loggedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+      .getBoolean(TOKEN_SAVED_KEY, false);
 
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -213,24 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // Item click listener
-    ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-      @Override
-      public void onItemClicked(RecyclerView recyclerView, int position, View view) {
-        ExampleItemModel model = adapter.getItemAt(position);
-
-        // in case it's an info tile
-        if (model != null) {
-          if (showJavaExamples) {
-            startActivity(model.getJavaActivity());
-          } else {
-            startActivity(model.getKotlinActivity());
-          }
-
-          analytics.clickedOnIndividualExample(getString(model.getTitle()), loggedIn);
-          analytics.viewedScreen(getString(model.getTitle()), loggedIn);
-        }
-      }
-    });
+    itemClickSupport = ItemClickSupport.addTo(recyclerView);
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -244,10 +261,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     if (navigationView != null) {
       navigationView.setNavigationItemSelectedListener(this);
       navigationView.setCheckedItem(R.id.nav_basics);
+      if (loggedIn) {
+        navigationView.getMenu().findItem(R.id.show_login_screen_in_nav_drawer).setVisible(false);
+      }
     }
 
-    loggedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-      .getBoolean(TOKEN_SAVED_KEY, false);
 
     if (loggedIn) {
       analytics.setMapboxUsername();
@@ -260,6 +278,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         .apply();
     }
     analytics.trackEvent(OPENED_APP, loggedIn);
+  }
+
+  @Override
+  public void onItemClicked(RecyclerView recyclerView, int position, View view) {
+    ExampleItemModel model = adapter.getItemAt(position);
+
+    // in case it's an info tile
+    if (model != null) {
+
+      if (showJavaExamples) {
+        startActivity(model.getJavaActivity());
+      } else {
+        startActivity(model.getKotlinActivity());
+      }
+
+      analytics.clickedOnIndividualExample(getString(model.getTitle()), loggedIn);
+      analytics.viewedScreen(getString(model.getTitle()), loggedIn);
+    }
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    itemClickSupport.setOnItemClickListener(this);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    itemClickSupport.setOnItemClickListener(null);
   }
 
   @Override
@@ -278,7 +326,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     // Handle navigation view item clicks here.
     int id = item.getItemId();
-
+    if (id == R.id.show_login_screen_in_nav_drawer) {
+      Intent intent = new Intent(this, LandingActivity.class);
+      intent.putExtra(FROM_LOGIN_SCREEN_MENU_ITEM_KEY, true);
+      this.startActivity(intent);
+    }
     if (id == R.id.settings_in_nav_drawer) {
       buildSettingsDialog();
     }
@@ -408,10 +460,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     final View customView = inflater.inflate(R.layout.settings_dialog_layout, null);
     Switch analyticsOptOutSwitch = customView.findViewById(R.id.analytics_opt_out_switch);
+    Switch alwaysShowLandingSwitch = customView.findViewById(R.id.login_or_create_account_switch);
     analyticsOptOutSwitch.setChecked(!analytics.isAnalyticsEnabled());
 
     final SettingsDialogView dialogView = new SettingsDialogView(customView,
-      this, analyticsOptOutSwitch, analytics, loggedIn);
+      this, analyticsOptOutSwitch, alwaysShowLandingSwitch, analytics, loggedIn);
 
     dialogView.buildDialog();
 
@@ -420,11 +473,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     if (!loggedIn) {
       logOutOfMapboxAccountButton.setVisibility(View.GONE);
     } else {
-      logOutOfMapboxAccountButton.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          dialogView.logOut(loggedIn);
-        }
+      logOutOfMapboxAccountButton.setOnClickListener(view -> {
+        dialogView.logOut(loggedIn);
       });
     }
   }
@@ -465,6 +515,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, BasicSymbolLayerActivity.class),
       null,
       R.string.activity_styles_symbol_layer_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_styles,
+      R.string.activity_styles_symbol_icon_onclick_size_change_title,
+      R.string.activity_styles_symbol_icon_onclick_size_change_description,
+      new Intent(MainActivity.this, IconSizeChangeOnClickActivity.class),
+      null,
+      R.string.activity_styles_symbol_icon_onclick_size_change_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_styles,
@@ -563,14 +621,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       R.string.activity_style_image_source_url, false, BuildConfig.MIN_SDK_VERSION
     ));
     exampleItemModels.add(new ExampleItemModel(
-        R.id.nav_styles,
-        R.string.activity_styles_click_to_add_image_title,
-        R.string.activity_styles_click_to_add_image_description,
-        new Intent(MainActivity.this, ClickToAddImageActivity.class),
-        null,
-        R.string.activity_styles_click_to_add_image_url, false, BuildConfig.MIN_SDK_VERSION
-    ));
-    exampleItemModels.add(new ExampleItemModel(
       R.id.nav_styles,
       R.string.activity_style_image_source_time_lapse_title,
       R.string.activity_style_image_source_time_lapse_description,
@@ -621,11 +671,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_styles,
-      R.string.activity_styles_fade_switch_title,
-      R.string.activity_styles_fade_switch_description,
-      new Intent(MainActivity.this, StyleFadeSwitchActivity.class),
+      R.string.activity_styles_satellite_opacity_on_zoom_title,
+      R.string.activity_style_satellite_opacity_on_zoom_description,
+      new Intent(MainActivity.this, SatelliteOpacityOnZoomActivity.class),
       null,
-      R.string.activity_styles_fade_switch_url, false, BuildConfig.MIN_SDK_VERSION));
+      R.string.activity_style_satellite_opacity_on_zoom_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_styles,
@@ -633,7 +683,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       R.string.activity_styles_text_field_formatting_description,
       new Intent(MainActivity.this, TextFieldFormattingActivity.class),
       null,
-      R.string.activity_styles_text_field_formatting_url, true, BuildConfig.MIN_SDK_VERSION));
+      R.string.activity_styles_text_field_formatting_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_styles,
+      R.string.activity_styles_missing_icon_title,
+      R.string.activity_styles_missing_icon_description,
+      new Intent(MainActivity.this, MissingIconActivity.class),
+      null,
+      R.string.activity_styles_missing_icon_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_styles,
+      R.string.activity_styles_variable_label_placement_title,
+      R.string.activity_styles_variable_label_placement_description,
+      new Intent(MainActivity.this, VariableLabelPlacementActivity.class),
+            null,
+       R.string.activity_styles_variable_label_placement_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_extrusions,
@@ -714,14 +780,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       R.string.activity_plugins_localization_plugin_url, false, BuildConfig.MIN_SDK_VERSION)
     );
 
-    exampleItemModels.add(new ExampleItemModel(
-      R.id.nav_plugins,
-      R.string.activity_plugins_place_picker_plugin_title,
-      R.string.activity_plugins_place_picker_plugin_description,
-      new Intent(MainActivity.this, PlaceSelectionPluginActivity.class),
-      null,
-      R.string.activity_plugins_place_picker_plugin_url, false, BuildConfig.MIN_SDK_VERSION)
-    );
+    // TODO: The example below is currently commented out because it crashes due
+    //  to incompatibility between the Mapbox Places Plugin and this app's usage
+    //  of AndroidX. This is being tracked at:
+    //  https://github.com/mapbox/mapbox-plugins-android/issues/908
+    /* exampleItemModels.add(new ExampleItemModel(
+    R.id.nav_plugins,
+    R.string.activity_plugins_place_picker_plugin_title,
+    R.string.activity_plugins_place_picker_plugin_description,
+    new Intent(MainActivity.this, PlaceSelectionPluginActivity.class),
+    null, R.string.activity_plugins_place_picker_plugin_url, false, BuildConfig.MIN_SDK_VERSION)
+    );*/
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_plugins,
@@ -730,6 +799,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, MarkerViewPluginActivity.class),
       null,
       R.string.activity_plugins_markerview_plugin_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_plugins,
+      R.string.activity_plugins_scalebar_plugin_title,
+      R.string.activity_plugins_scalebar_plugin_description,
+      new Intent(MainActivity.this, ScalebarPluginActivity.class),
+      null,
+      R.string.activity_plugins_scalebar_plugin_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_dds,
@@ -763,6 +840,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, LocationComponentOptionsActivity.class),
       null,
       R.string.activity_location_location_component_options_url, false, BuildConfig.MIN_SDK_VERSION)
+    );
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_location,
+      R.string.activity_location_location_component_camera_options_title,
+      R.string.activity_location_location_component_camera_options_description,
+      new Intent(MainActivity.this, LocationComponentCameraOptionsActivity.class),
+      null,
+      R.string.activity_location_location_component_camera_options_url, false, BuildConfig.MIN_SDK_VERSION)
     );
 
     exampleItemModels.add(new ExampleItemModel(
@@ -812,6 +898,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, OfflineManagerActivity.class),
       null,
       R.string.activity_offline_manager_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_offline,
+      R.string.activity_offline_cache_management_title,
+      R.string.activity_offline_cache_management_description,
+      new Intent(MainActivity.this, CacheManagementActivity.class),
+      null,
+      R.string.activity_offline_cache_management_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_query_map,
@@ -868,6 +962,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, HighlightedLineActivity.class),
       null,
       R.string.activity_query_highlighted_line_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_query_map,
+      R.string.activity_lab_drag_draw_title,
+      R.string.activity_lab_drag_draw_description,
+      new Intent(MainActivity.this, FingerDrawQueryActivity.class),
+      null,
+      R.string.activity_lab_drag_draw_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_java_services,
@@ -935,11 +1037,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_java_services,
+      R.string.activity_java_services_isochrone_with_seekbar_title,
+      R.string.activity_java_services_isochrone_with_seekbar_description,
+      new Intent(MainActivity.this, IsochroneSeekbarActivity.class),
+      null,
+      R.string.activity_java_services_isochrone_with_seekbar_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
       R.string.activity_java_services_tilequery_title,
       R.string.activity_java_services_tilequery_description,
       new Intent(MainActivity.this, TilequeryActivity.class),
       null,
       R.string.activity_java_services_tilequery_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
+      R.string.activity_java_services_turf_ring_title,
+      R.string.activity_java_services_turf_ring_description,
+      new Intent(MainActivity.this, TurfRingActivity.class),
+      null,
+      R.string.activity_java_services_turf_ring_url, false, BuildConfig.MIN_SDK_VERSION
+    ));
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
+      R.string.activity_java_services_turf_physical_circle_title,
+      R.string.activity_java_services_turf_physical_circle_description,
+      new Intent(MainActivity.this, TurfPhysicalCircleActivity.class),
+      null,
+      R.string.activity_java_services_turf_physical_circle_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_java_services,
+        R.string.activity_java_services_turf_elevation_query_title,
+        R.string.activity_java_services_turf_elevation_query_description,
+        new Intent(MainActivity.this, ElevationQueryActivity.class),
+        null,
+        R.string.activity_java_services_turf_elevation_query_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
+      R.string.activity_java_services_turf_line_distance_title,
+      R.string.activity_java_services_turf_line_distance_description,
+      new Intent(MainActivity.this, TurfLineDistanceActivity.class),
+      null,
+      R.string.activity_java_services_turf_line_distance_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
+      R.string.activity_java_services_directions_gradient_title,
+      R.string.activity_java_services_directions_gradient_description,
+      new Intent(MainActivity.this, DirectionsGradientLineActivity.class),
+      null,
+      R.string.activity_java_services_directions_gradient_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_java_services,
+      R.string.activity_java_services_multiple_geometries_from_directions_route_title,
+      R.string.activity_java_services_multiple_geometries_from_directions_route_description,
+      new Intent(MainActivity.this, MultipleGeometriesDirectionsRouteActivity.class),
+      null,
+      R.string.activity_java_services_multiple_geometries_from_directions_route_url,
+      true, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_snapshot_image_generator,
@@ -1050,15 +1209,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_lab,
-      R.string.activity_labs_snaking_directions_route_title,
-      R.string.activity_labs_snaking_directions_route_description,
-      new Intent(MainActivity.this, SnakingDirectionsRouteActivity.class),
-      null,
-      R.string.activity_labs_snaking_directions_route_url, false, BuildConfig.MIN_SDK_VERSION
-    ));
-
-    exampleItemModels.add(new ExampleItemModel(
-      R.id.nav_lab,
       R.string.activity_lab_fog_background_title,
       R.string.activity_lab_fog_background_description,
       new Intent(MainActivity.this, MapFogBackgroundActivity.class),
@@ -1068,11 +1218,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_lab,
-      R.string.activity_dashed_line_directions_picker_title,
-      R.string.activity_dashed_line_directions_picker_description,
+      R.string.activity_lab_dashed_line_directions_picker_title,
+      R.string.activity_lab_dashed_line_directions_picker_description,
       new Intent(MainActivity.this, DashedLineDirectionsPickerActivity.class),
       null,
-      R.string.activity_dashed_line_directions_picker_url, false, BuildConfig.MIN_SDK_VERSION));
+      R.string.activity_lab_dashed_line_directions_picker_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_lab,
@@ -1115,6 +1265,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       null,
       R.string.activity_lab_animated_interpolator_icon_drop_url, false, BuildConfig.MIN_SDK_VERSION
     ));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_lab,
+      R.string.activity_lab_moving_icon_with_trailing_line_title,
+      R.string.activity_lab_moving_icon_with_trailing_line_description,
+      new Intent(MainActivity.this, MovingIconWithTrailingLineActivity.class),
+      null,
+      R.string.activity_lab_moving_icon_with_trailing_line_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_lab,
+        R.string.activity_lab_rv_directions_title,
+        R.string.activity_lab_rv_directions_description,
+        new Intent(MainActivity.this, RecyclerViewDirectionsActivity.class),
+        null,
+        R.string.activity_lab_rv_directions_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_lab,
+      R.string.activity_lab_spinning_icon_title,
+      R.string.activity_lab_spinning_icon_description,
+      new Intent(MainActivity.this, SpinningSymbolLayerIconActivity.class),
+      null,
+      R.string.activity_lab_spinning_icon_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_lab,
+      R.string.activity_lab_change_attribution_color_title,
+      R.string.activity_lab_change_attribution_color_description,
+      new Intent(MainActivity.this, ChangeAttributionColorActivity.class),
+      null,
+      R.string.activity_lab_change_attribution_color_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_lab,
+        R.string.activity_lab_shared_preferences_title,
+        R.string.activity_lab_shared_preferences_description,
+        new Intent(MainActivity.this, SharedPreferencesActivity.class),
+        null,
+        R.string.activity_lab_shared_preferences_url, true, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_dds,
@@ -1269,22 +1459,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       R.string.activity_dds_satellite_land_select_description,
       new Intent(MainActivity.this, SatelliteLandSelectActivity.class),
       null,
-      R.string.activity_dds_satellite_land_select_url, true, BuildConfig.MIN_SDK_VERSION));
+      R.string.activity_dds_satellite_land_select_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+        R.id.nav_dds,
+        R.string.activity_dds_symbol_zoom_switch_title,
+        R.string.activity_dds_symbol_zoom_switch_description,
+        new Intent(MainActivity.this, SymbolSwitchOnZoomActivity.class),
+        null,
+        R.string.activity_dds_symbol_zoom_switch_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_dds,
-      R.string.activity_dds_symbol_zoom_switch_title,
-      R.string.activity_dds_symbol_zoom_switch_description,
-      new Intent(MainActivity.this, SymbolSwitchOnZoomActivity.class),
+      R.string.activity_dds_polygon_select_toggle_title,
+      R.string.activity_dds_polygon_select_toggle_description,
       null,
-      R.string.activity_dds_symbol_zoom_switch_url, true, BuildConfig.MIN_SDK_VERSION));
+      new Intent(MainActivity.this, PolygonSelectToggleActivity.class),
+      R.string.activity_dds_polygon_select_toggle_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_dds,
+      R.string.activity_dds_symbol_collision_detection_title,
+      R.string.activity_dds_symbol_collision_detection_description,
+      new Intent(MainActivity.this, SymbolCollisionDetectionActivity.class),
+      null,
+      R.string.activity_dds_symbol_collision_detection_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_dds,
+      R.string.activity_dds_polygon_revealed_hole_outline_title,
+      R.string.activity_dds_polygon_revealed_hole_outline_description,
+      new Intent(MainActivity.this, RevealedPolygonHoleOutlineActivity.class),
+      null,
+      R.string.activity_dds_polygon_revealed_hole_outline_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_dds,
+      R.string.activity_dds_circle_radius_title,
+      R.string.activity_dds_circle_radius_description,
+      new Intent(MainActivity.this, CircleRadiusActivity.class),
+      null,
+      R.string.activity_dds_circle_radius_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_dds,
+      R.string.activity_dds_circle_to_icon_smooth_transition_title,
+      R.string.activity_dds_circle_to_icon_smooth_transition_description,
+      new Intent(MainActivity.this, CircleToIconTransitionActivity.class),
+      null,
+      R.string.activity_dds_circle_to_icon_smooth_transition_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
       R.id.nav_basics,
       R.string.activity_basic_simple_mapview_title,
       R.string.activity_basic_simple_mapview_description,
       new Intent(MainActivity.this, SimpleMapViewActivity.class),
-      new Intent(MainActivity.this, SimpleMapViewActivityKotlin.class),
+      new Intent(MainActivity.this, KotlinSimpleMapViewActivity.class),
       R.string.activity_basic_simple_mapview_url, false, BuildConfig.MIN_SDK_VERSION));
 
     exampleItemModels.add(new ExampleItemModel(
@@ -1302,5 +1532,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       new Intent(MainActivity.this, MapboxMapOptionActivity.class),
       null,
       R.string.activity_basic_mapbox_options_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_basics,
+      R.string.activity_basic_kotlin_support_map_frag_title,
+      R.string.activity_basic_kotlin_support_map_frag_description,
+      null,
+      new Intent(MainActivity.this, KotlinSupportMapFragmentActivity.class),
+      R.string.activity_basic_kotlin_support_map_frag_url, true, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_location,
+      R.string.activity_location_location_change_listening_title,
+      R.string.activity_location_location_change_listening_description,
+      new Intent(MainActivity.this, LocationChangeListeningActivity.class),
+      null,
+      R.string.activity_location_location_change_listening_url, false, BuildConfig.MIN_SDK_VERSION));
+
+    exampleItemModels.add(new ExampleItemModel(
+      R.id.nav_styles,
+      R.string.activity_styles_runtime_styling_title,
+      R.string.activity_styles_runtime_styling_description,
+      new Intent(MainActivity.this, RuntimeStylingActivity.class),
+      null,
+      R.string.activity_styles_runtime_styling_url, false, BuildConfig.MIN_SDK_VERSION));
   }
 }

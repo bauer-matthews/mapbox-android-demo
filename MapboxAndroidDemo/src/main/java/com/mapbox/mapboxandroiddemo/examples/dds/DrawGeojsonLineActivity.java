@@ -3,9 +3,9 @@ package com.mapbox.mapboxandroiddemo.examples.dds;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxandroiddemo.R;
@@ -42,7 +42,7 @@ public class DrawGeojsonLineActivity extends AppCompatActivity implements OnMapR
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_annotation_geojson_line);
+    setContentView(R.layout.activity_dds_draw_geojson_line);
 
     mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);
@@ -62,21 +62,22 @@ public class DrawGeojsonLineActivity extends AppCompatActivity implements OnMapR
 
   private void drawLines(@NonNull FeatureCollection featureCollection) {
     if (mapboxMap != null) {
-      Style style = mapboxMap.getStyle();
-      if (style != null) {
-        if (featureCollection.features().size() > 0) {
-          style.addSource(new GeoJsonSource("line-source", featureCollection));
+      mapboxMap.getStyle(style -> {
+        if (featureCollection.features() != null) {
+          if (featureCollection.features().size() > 0) {
+            style.addSource(new GeoJsonSource("line-source", featureCollection));
 
-          // The layer properties for our line. This is where we make the line dotted, set the
-          // color, etc.
-          style.addLayer(new LineLayer("linelayer", "line-source")
-            .withProperties(PropertyFactory.lineCap(Property.LINE_CAP_SQUARE),
-              PropertyFactory.lineJoin(Property.LINE_JOIN_MITER),
-              PropertyFactory.lineOpacity(.7f),
-              PropertyFactory.lineWidth(7f),
-              PropertyFactory.lineColor(Color.parseColor("#3bb2d0"))));
+            // The layer properties for our line. This is where we make the line dotted, set the
+            // color, etc.
+            style.addLayer(new LineLayer("linelayer", "line-source")
+              .withProperties(PropertyFactory.lineCap(Property.LINE_CAP_SQUARE),
+                PropertyFactory.lineJoin(Property.LINE_JOIN_MITER),
+                PropertyFactory.lineOpacity(.7f),
+                PropertyFactory.lineWidth(7f),
+                PropertyFactory.lineColor(Color.parseColor("#3bb2d0"))));
+          }
         }
-      }
+      });
     }
   }
 

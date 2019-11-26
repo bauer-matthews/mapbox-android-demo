@@ -3,9 +3,9 @@ package com.mapbox.mapboxandroiddemo.examples.dds;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -143,7 +143,7 @@ public class SatelliteLandSelectActivity extends AppCompatActivity implements
         } else if (circleLayerFeatureList.size() == 3) {
           lineLayerPointList.add(mapTargetPoint);
           lineLayerPointList.add(firstPointOfPolygon);
-        } else if (circleLayerFeatureList.size() >= 4) {
+        } else {
           lineLayerPointList.remove(circleLayerFeatureList.size() - 1);
           lineLayerPointList.add(mapTargetPoint);
           lineLayerPointList.add(firstPointOfPolygon);
@@ -159,7 +159,7 @@ public class SatelliteLandSelectActivity extends AppCompatActivity implements
         } else if (circleLayerFeatureList.size() == 3) {
           fillLayerPointList.add(mapTargetPoint);
           fillLayerPointList.add(firstPointOfPolygon);
-        } else if (circleLayerFeatureList.size() >= 4) {
+        } else {
           fillLayerPointList.remove(fillLayerPointList.size() - 1);
           fillLayerPointList.add(mapTargetPoint);
           fillLayerPointList.add(firstPointOfPolygon);

@@ -2,8 +2,6 @@ package com.mapbox.mapboxandroiddemo.examples.dds;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.mapboxandroiddemo.R;
@@ -14,19 +12,21 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.layers.TransitionOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import timber.log.Timber;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.division;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.gt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
@@ -34,18 +34,22 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconTranslate;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textOffset;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 /**
- * Use GeoJson data with SymbolLayers to create a data clustering effect.
+ * Use GeoJSON data with SymbolLayers to create a data clustering effect with icons rather than circles.
  */
 public class ImageClusteringActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+  private static final String CLUSTER_EARTHQUAKE_TRIANGLE_ICON_ID = "quake-triangle-icon-id";
+  private static final String SINGLE_EARTHQUAKE_TRIANGLE_ICON_ID = "single-quake-icon-id";
+  private static final String EARTHQUAKE_SOURCE_ID = "earthquakes";
+  private static final String POINT_COUNT = "point_count";
   private MapView mapView;
 
   @Override
@@ -68,6 +72,11 @@ public class ImageClusteringActivity extends AppCompatActivity implements OnMapR
     mapboxMap.setStyle(Style.LIGHT, new Style.OnStyleLoaded() {
       @Override
       public void onStyleLoaded(@NonNull Style style) {
+
+        // Disable any type of fading transition when icons collide on the map. This enhances the visual
+        // look of the data clustering together and breaking apart.
+        style.setTransition(new TransitionOptions(0, 0, false));
+
         initLayerIcons(style);
         addClusteredGeoJsonSource(style);
         Toast.makeText(ImageClusteringActivity.this, R.string.zoom_map_in_and_out_instruction,
@@ -77,9 +86,9 @@ public class ImageClusteringActivity extends AppCompatActivity implements OnMapR
   }
 
   private void initLayerIcons(@NonNull Style loadedMapStyle) {
-    loadedMapStyle.addImage("single-quake-icon-id", BitmapUtils.getBitmapFromDrawable(
+    loadedMapStyle.addImage(SINGLE_EARTHQUAKE_TRIANGLE_ICON_ID, BitmapUtils.getBitmapFromDrawable(
       getResources().getDrawable(R.drawable.single_quake_icon)));
-    loadedMapStyle.addImage("quake-triangle-icon-id", BitmapUtils.getBitmapFromDrawable(
+    loadedMapStyle.addImage(CLUSTER_EARTHQUAKE_TRIANGLE_ICON_ID, BitmapUtils.getBitmapFromDrawable(
       getResources().getDrawable(R.drawable.earthquake_triangle)));
   }
 
@@ -89,48 +98,50 @@ public class ImageClusteringActivity extends AppCompatActivity implements OnMapR
       loadedMapStyle.addSource(
         // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes from
         // 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
-        new GeoJsonSource("earthquakes",
-          new URL("https://www.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson"),
+        new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
+          new URI("https://www.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson"),
           new GeoJsonOptions()
             .withCluster(true)
             .withClusterMaxZoom(14)
             .withClusterRadius(50)
         )
       );
-    } catch (MalformedURLException malformedUrlException) {
-      Timber.e("Check the URL %s" , malformedUrlException.getMessage());
+    } catch (URISyntaxException uriSyntaxException) {
+      Timber.e("Check the URL %s" , uriSyntaxException.getMessage());
     }
 
-    //Creating a SymbolLayer icon layer for single data/icon points
-    loadedMapStyle.addLayer(new SymbolLayer("unclustered-points", "earthquakes").withProperties(
-      iconImage("single-quake-icon-id"),
+    SymbolLayer unclusteredSymbolLayer = new SymbolLayer("unclustered-points", EARTHQUAKE_SOURCE_ID).withProperties(
+      iconImage(SINGLE_EARTHQUAKE_TRIANGLE_ICON_ID),
       iconSize(
         division(
           get("mag"), literal(4.0f)
         )
       )
-    ));
+    );
+    unclusteredSymbolLayer.setFilter(has("mag"));
+
+    //Creating a SymbolLayer icon layer for single data/icon points
+    loadedMapStyle.addLayer(unclusteredSymbolLayer);
 
     // Use the earthquakes GeoJSON source to create three point ranges.
     int[] layers = new int[] {150, 20, 0};
 
     for (int i = 0; i < layers.length; i++) {
       //Add clusters' SymbolLayers images
-      SymbolLayer symbolLayer = new SymbolLayer("cluster-" + i, "earthquakes");
+      SymbolLayer symbolLayer = new SymbolLayer("cluster-" + i, EARTHQUAKE_SOURCE_ID);
 
       symbolLayer.setProperties(
-        iconImage("quake-triangle-icon-id"),
-        iconTranslate(new Float[] {0f, -9f})
+        iconImage(CLUSTER_EARTHQUAKE_TRIANGLE_ICON_ID)
       );
-      Expression pointCount = toNumber(get("point_count"));
+      Expression pointCount = toNumber(get(POINT_COUNT));
 
       // Add a filter to the cluster layer that hides the icons based on "point_count"
       symbolLayer.setFilter(
         i == 0
-          ? all(has("point_count"),
+          ? all(has(POINT_COUNT),
           gte(pointCount, literal(layers[i]))
-        ) : all(has("point_count"),
-          gt(pointCount, literal(layers[i])),
+        ) : all(has(POINT_COUNT),
+          gte(pointCount, literal(layers[i])),
           lt(pointCount, literal(layers[i - 1]))
         )
       );
@@ -138,11 +149,14 @@ public class ImageClusteringActivity extends AppCompatActivity implements OnMapR
     }
 
     //Add a SymbolLayer for the cluster data number point count
-    loadedMapStyle.addLayer(new SymbolLayer("count", "earthquakes").withProperties(
-      textField(Expression.toString(get("point_count"))),
+    loadedMapStyle.addLayer(new SymbolLayer("count", EARTHQUAKE_SOURCE_ID).withProperties(
+      textField(Expression.toString(get(POINT_COUNT))),
       textSize(12f),
       textColor(Color.BLACK),
       textIgnorePlacement(true),
+      // The .5f offset moves the data numbers down a little bit so that they're
+      // in the middle of the triangle cluster image
+      textOffset(new Float[] {0f, .5f}),
       textAllowOverlap(true)
     ));
   }

@@ -1,8 +1,8 @@
 package com.mapbox.mapboxandroiddemo.examples.styles;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -34,7 +34,7 @@ public class MapboxStudioStyleActivity extends AppCompatActivity {
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(@NonNull MapboxMap mapboxMap) {
-        mapboxMap.setStyle(new Style.Builder().fromUrl("mapbox://styles/mapbox/cj3kbeqzo00022smj7akz3o1e"));
+        mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/cj3kbeqzo00022smj7akz3o1e"));
       }
     });
   }

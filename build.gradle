@@ -7,27 +7,31 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     dependencies {
         classpath pluginDependencies.gradle
-        classpath pluginDependencies.firebase
-        classpath pluginDependencies.playPublisher
+        classpath pluginDependencies.firebasePerformance
         classpath pluginDependencies.kotlin
+        classpath pluginDependencies.fabric
+        classpath pluginDependencies.googleServices
+        classpath pluginDependencies.kotlinLint
     }
-
 }
 
 plugins {
     id 'com.palantir.circle.style' version '1.1.2'
+    id 'com.github.triplet.play' version '2.0.0'
 }
 
 allprojects {
     repositories {
         google()
+        jcenter()
         maven { url "https://jitpack.io" }
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
         maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local/' }
     }
 }
@@ -40,3 +44,4 @@ subprojects {
     // apply plugin: 'idea'
     apply from: "${rootDir}/gradle/dependencies.gradle"
 }
+

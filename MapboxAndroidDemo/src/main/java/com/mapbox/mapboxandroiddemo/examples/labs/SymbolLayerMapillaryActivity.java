@@ -17,16 +17,16 @@ import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PagerSnapHelper;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +63,7 @@ import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
@@ -129,7 +130,6 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
 
   private MapView mapView;
   private MapboxMap mapboxMap;
-  private Style style;
   private RecyclerView recyclerView;
 
   private GeoJsonSource source;
@@ -184,7 +184,6 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
     mapboxMap.setStyle(Style.DARK, new Style.OnStyleLoaded() {
       @Override
       public void onStyleLoaded(@NonNull Style style) {
-        SymbolLayerMapillaryActivity.this.style = style;
         mapboxMap.getUiSettings().setCompassEnabled(false);
         mapboxMap.getUiSettings().setLogoEnabled(false);
         mapboxMap.getUiSettings().setAttributionEnabled(false);
@@ -207,7 +206,6 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
       // we didn't find a click event on callout layer, try clicking maki layer
       return handleClickIcon(screenPoint);
     }
-
     return true;
   }
 
@@ -216,16 +214,18 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
       return;
     }
     featureCollection = collection;
-
-    if (style.isFullyLoaded()) {
-      setupSource(style);
-      setupMakiLayer(style);
-      setupLoadingLayer(style);
-      setupCalloutLayer(style);
-      setupRecyclerView();
-      hideLabelLayers(style);
-      setupMapillaryTiles(style);
-    }
+    mapboxMap.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        setupSource(style);
+        setupMakiLayer(style);
+        setupLoadingLayer(style);
+        setupCalloutLayer(style);
+        setupRecyclerView();
+        hideLabelLayers(style);
+        setupMapillaryTiles(style);
+      }
+    });
   }
 
   private void setupSource(@NonNull Style loadedMapStyle) {
@@ -514,20 +514,28 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
     ImageView imageView = view.findViewById(R.id.logoView);
     imageView.setImageResource(currentState ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
     Bitmap bitmap = SymbolGenerator.generate(view);
-    style.addImage(title, bitmap);
-    refreshSource();
+    mapboxMap.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        style.addImage(title, bitmap);
+        refreshSource();
+      }
+    });
   }
 
   /**
    * Invoked when the bitmaps have been generated from a view.
    */
   public void setImageGenResults(HashMap<String, View> viewMap, HashMap<String, Bitmap> imageMap) {
-    if (style.isFullyLoaded()) {
-      // calling addImages is faster as separate addImage calls for each bitmap.
-      style.addImages(imageMap);
-    }
+    mapboxMap.getStyle(new Style.OnStyleLoaded() {
+      @Override
+      public void onStyleLoaded(@NonNull Style style) {
+        // calling addImages is faster as separate addImage calls for each bitmap.
+        style.addImages(imageMap);
+      }
+    });
     // need to store reference to views to be able to use them as hitboxes for click events.
-    this.viewMap = viewMap;
+    SymbolLayerMapillaryActivity.this.viewMap = viewMap;
   }
 
   private void setActivityStep(@ActivityStep int activityStep) {
@@ -717,7 +725,7 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
         byte[] buffer = new byte[size];
         is.read(buffer);
         is.close();
-        return new String(buffer, "UTF-8");
+        return new String(buffer, Charset.forName("UTF-8"));
       } catch (Exception exception) {
         throw new RuntimeException(exception);
       }
@@ -788,6 +796,7 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
       super.onPostExecute(bitmapHashMap);
       SymbolLayerMapillaryActivity activity = activityRef.get();
       if (activity != null && bitmapHashMap != null) {
+
         activity.setImageGenResults(viewMap, bitmapHashMap);
         if (refreshSource) {
           activity.refreshSource();
@@ -987,8 +996,8 @@ public class SymbolLayerMapillaryActivity extends AppCompatActivity implements O
       canvas.drawARGB(0, 0, 0, 0);
       paint.setColor(color);
       // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-      canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
-        bitmap.getWidth() / 2, paint);
+      canvas.drawCircle((float) bitmap.getWidth() / 2, (float) bitmap.getHeight() / 2,
+        (float) bitmap.getWidth() / 2, paint);
       paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
       canvas.drawBitmap(bitmap, rect, rect, paint);
       //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);

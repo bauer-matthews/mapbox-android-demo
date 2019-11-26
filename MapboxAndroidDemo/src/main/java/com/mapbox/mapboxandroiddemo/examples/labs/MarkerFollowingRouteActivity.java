@@ -7,9 +7,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.animation.LinearInterpolator;
 
 import com.mapbox.geojson.FeatureCollection;
@@ -93,15 +93,18 @@ public class MarkerFollowingRouteActivity extends AppCompatActivity {
    * @param featureCollection returned GeoJSON FeatureCollection from the async task
    */
   private void initData(@NonNull FeatureCollection featureCollection) {
-    LineString lineString = (LineString) featureCollection.features().get(0).geometry();
-    routeCoordinateList = lineString.coordinates();
-    if (mapboxMap != null) {
-      Style style = mapboxMap.getStyle();
-      if (style != null) {
-        initSources(style, featureCollection);
-        initSymbolLayer(style);
-        initDotLinePath(style);
-        initRunnable();
+    if (featureCollection.features() != null) {
+      LineString lineString = (LineString) featureCollection.features().get(0).geometry();
+      if (lineString != null) {
+        routeCoordinateList = lineString.coordinates();
+        if (mapboxMap != null) {
+          mapboxMap.getStyle(style -> {
+            initSources(style, featureCollection);
+            initSymbolLayer(style);
+            initDotLinePath(style);
+            initRunnable();
+          });
+        }
       }
     }
   }
@@ -127,24 +130,23 @@ public class MarkerFollowingRouteActivity extends AppCompatActivity {
             markerIconCurrentLocation = (LatLng) markerIconAnimator.getAnimatedValue();
             markerIconAnimator.cancel();
           }
-          if (latLngEvaluator != null) {
-            markerIconAnimator = ObjectAnimator
-              .ofObject(latLngEvaluator, count == 0 ? new LatLng(37.61501, -122.385374)
-                  : markerIconCurrentLocation,
-                new LatLng(nextLocation.latitude(), nextLocation.longitude()))
-              .setDuration(300);
-            markerIconAnimator.setInterpolator(new LinearInterpolator());
+          markerIconAnimator = ObjectAnimator
+            .ofObject(latLngEvaluator, count == 0 || markerIconCurrentLocation == null
+                ? new LatLng(37.61501, -122.385374)
+                : markerIconCurrentLocation,
+              new LatLng(nextLocation.latitude(), nextLocation.longitude()))
+            .setDuration(300);
+          markerIconAnimator.setInterpolator(new LinearInterpolator());
 
-            markerIconAnimator.addUpdateListener(animatorUpdateListener);
-            markerIconAnimator.start();
+          markerIconAnimator.addUpdateListener(animatorUpdateListener);
+          markerIconAnimator.start();
 
-            // Keeping the current point count we are on.
-            count++;
+          // Keeping the current point count we are on.
+          count++;
 
-            // Once we finish we need to repeat the entire process by executing the
-            // handler again once the ValueAnimator is finished.
-            handler.postDelayed(this, 300);
-          }
+          // Once we finish we need to repeat the entire process by executing the
+          // handler again once the ValueAnimator is finished.
+          handler.postDelayed(this, 300);
         }
       }
     };

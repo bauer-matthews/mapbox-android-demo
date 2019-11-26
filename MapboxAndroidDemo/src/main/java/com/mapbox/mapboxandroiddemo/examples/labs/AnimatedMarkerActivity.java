@@ -5,8 +5,8 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
@@ -43,7 +43,7 @@ public class AnimatedMarkerActivity extends AppCompatActivity implements OnMapRe
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_annotation_animated_marker);
+    setContentView(R.layout.activity_lab_animated_marker);
 
     mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);

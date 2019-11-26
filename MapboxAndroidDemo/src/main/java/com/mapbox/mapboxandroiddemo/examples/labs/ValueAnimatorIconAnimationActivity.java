@@ -3,8 +3,8 @@ package com.mapbox.mapboxandroiddemo.examples.labs;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
@@ -29,7 +29,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconTranslate;
 
 /**
  * Combine SymbolLayer icons with the Android system's ValueAnimator and interpolator
@@ -75,7 +74,7 @@ public class ValueAnimatorIconAnimationActivity extends AppCompatActivity implem
 
   @Override
   public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-    mapboxMap.setStyle(new Style.Builder().fromUrl(Style.LIGHT)
+    mapboxMap.setStyle(new Style.Builder().fromUri(Style.LIGHT)
         // Add GeoJsonSource with random Features to the map.
         .withSource(new GeoJsonSource("source-id",
           FeatureCollection.fromFeatures(new Feature[] {
@@ -140,7 +139,7 @@ public class ValueAnimatorIconAnimationActivity extends AppCompatActivity implem
     if (animator != null) {
       animator.cancel();
     }
-    animator = ValueAnimator.ofFloat(STARTING_DROP_HEIGHT, 0);
+    animator = ValueAnimator.ofFloat(STARTING_DROP_HEIGHT, -17);
     animator.setDuration(DROP_SPEED_MILLISECONDS);
     animator.setInterpolator(desiredTimeInterpolator);
     animator.setStartDelay(1000);
@@ -152,7 +151,7 @@ public class ValueAnimatorIconAnimationActivity extends AppCompatActivity implem
           initSymbolLayer();
           animationHasStarted = true;
         }
-        pinSymbolLayer.setProperties(iconTranslate(new Float[] {0f, (Float) valueAnimator.getAnimatedValue()}));
+        pinSymbolLayer.setProperties(iconOffset(new Float[] {0f, (Float) valueAnimator.getAnimatedValue()}));
       }
     });
   }
@@ -180,9 +179,6 @@ public class ValueAnimatorIconAnimationActivity extends AppCompatActivity implem
     bounceInterpolatorFab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (firstRunThrough) {
-          firstRunThrough = true;
-        }
         currentSelectedTimeInterpolator = new BounceInterpolator();
         resetIcons();
       }

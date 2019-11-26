@@ -1,8 +1,8 @@
 package com.mapbox.mapboxandroiddemo.examples.styles;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -75,7 +75,12 @@ public class AdjustLayerOpacityActivity extends AppCompatActivity {
           public void onStyleLoaded(@NonNull Style style) {
             style.addSource(new RasterSource("chicago-source", "mapbox://mapbox.u8yyzaor"));
             style.addLayer(new RasterLayer("chicago", "chicago-source"));
-            chicago = map.getStyle().getLayer("chicago");
+            map.getStyle(new Style.OnStyleLoaded() {
+              @Override
+              public void onStyleLoaded(@NonNull Style style) {
+                chicago = style.getLayer("chicago");
+              }
+            });
           }
         });
       }

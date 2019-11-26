@@ -2,8 +2,6 @@ package com.mapbox.mapboxandroiddemo.examples.javaservices;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -26,12 +24,15 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import timber.log.Timber;
 
 import static com.mapbox.core.constants.Constants.PRECISION_6;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
@@ -74,7 +75,6 @@ public class DirectionsActivity extends AppCompatActivity {
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(@NonNull MapboxMap mapboxMap) {
-
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
           @Override
           public void onStyleLoaded(@NonNull Style style) {
@@ -89,7 +89,7 @@ public class DirectionsActivity extends AppCompatActivity {
             initLayers(style);
 
             // Get the directions route from the Mapbox Directions API
-            getRoute(style, origin, destination);
+            getRoute(mapboxMap, origin, destination);
           }
         });
       }
@@ -110,7 +110,7 @@ public class DirectionsActivity extends AppCompatActivity {
   }
 
   /**
-   * Add the route and maker icon layers to the map
+   * Add the route and marker icon layers to the map
    */
   private void initLayers(@NonNull Style loadedMapStyle) {
     LineLayer routeLayer = new LineLayer(ROUTE_LAYER_ID, ROUTE_SOURCE_ID);
@@ -132,19 +132,18 @@ public class DirectionsActivity extends AppCompatActivity {
     loadedMapStyle.addLayer(new SymbolLayer(ICON_LAYER_ID, ICON_SOURCE_ID).withProperties(
       iconImage(RED_PIN_ICON_ID),
       iconIgnorePlacement(true),
-      iconIgnorePlacement(true),
-      iconOffset(new Float[] {0f, -4f})));
+      iconAllowOverlap(true),
+      iconOffset(new Float[] {0f, -9f})));
   }
 
   /**
    * Make a request to the Mapbox Directions API. Once successful, pass the route to the
    * route layer.
-   *
+   * @param mapboxMap the Mapbox map object that the route will be drawn on
    * @param origin      the starting point of the route
    * @param destination the desired finish point of the route
    */
-  private void getRoute(@NonNull final Style style, Point origin, Point destination) {
-
+  private void getRoute(MapboxMap mapboxMap, Point origin, Point destination) {
     client = MapboxDirections.builder()
       .origin(origin)
       .destination(destination)
@@ -156,8 +155,6 @@ public class DirectionsActivity extends AppCompatActivity {
     client.enqueueCall(new Callback<DirectionsResponse>() {
       @Override
       public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-        System.out.println(call.request().url().toString());
-
         // You can get the generic HTTP info about the response
         Timber.d("Response code: " + response.code());
         if (response.body() == null) {
@@ -176,17 +173,23 @@ public class DirectionsActivity extends AppCompatActivity {
           getString(R.string.directions_activity_toast_message),
           currentRoute.distance()), Toast.LENGTH_SHORT).show();
 
-        if (style.isFullyLoaded()) {
-          // Retrieve and update the source designated for showing the directions route
-          GeoJsonSource source = style.getSourceAs(ROUTE_SOURCE_ID);
+        if (mapboxMap != null) {
+          mapboxMap.getStyle(new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
 
-          // Create a LineString with the directions route's geometry and
-          // reset the GeoJSON source for the route LineLayer source
-          if (source != null) {
-            Timber.d("onResponse: source != null");
-            source.setGeoJson(FeatureCollection.fromFeature(
-              Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6))));
-          }
+              // Retrieve and update the source designated for showing the directions route
+              GeoJsonSource source = style.getSourceAs(ROUTE_SOURCE_ID);
+
+              // Create a LineString with the directions route's geometry and
+              // reset the GeoJSON source for the route LineLayer source
+              if (source != null) {
+                Timber.d("onResponse: source != null");
+                source.setGeoJson(FeatureCollection.fromFeature(
+                    Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6))));
+              }
+            }
+          });
         }
       }
 

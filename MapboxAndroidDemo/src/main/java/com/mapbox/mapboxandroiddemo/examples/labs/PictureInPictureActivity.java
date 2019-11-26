@@ -1,9 +1,9 @@
 package com.mapbox.mapboxandroiddemo.examples.labs;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -65,12 +65,14 @@ public class PictureInPictureActivity extends AppCompatActivity {
 
     addPictureFab.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
 
-    if (isInPictureInPictureMode) {
+    if (isInPictureInPictureMode && getSupportActionBar() != null) {
       // Hide the controls in picture-in-picture mode.
       getSupportActionBar().hide();
     } else {
       // Restore the playback UI based on the playback status.
-      getSupportActionBar().show();
+      if (getSupportActionBar() != null) {
+        getSupportActionBar().show();
+      }
     }
   }
 

@@ -1,9 +1,9 @@
 package com.mapbox.mapboxandroiddemo.examples.plugins;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -44,25 +44,24 @@ public class LocalizationPluginActivity extends AppCompatActivity implements OnM
 
   @Override
   public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-
     mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
       @Override
       public void onStyleLoaded(@NonNull Style style) {
         localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
-        findViewById(R.id.language_one_cardview).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.language_one_button).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
             localizationPlugin.setMapLanguage(MapLocale.ARABIC);
           }
         });
-        findViewById(R.id.language_two_cardview).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.language_two_button).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
             localizationPlugin.setMapLanguage(MapLocale.RUSSIAN);
           }
         });
-        findViewById(R.id.language_three_cardview).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.language_three_button).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
             localizationPlugin.setMapLanguage(MapLocale.SIMPLIFIED_CHINESE);
@@ -86,7 +85,6 @@ public class LocalizationPluginActivity extends AppCompatActivity implements OnM
             }
           }
         });
-
         Toast.makeText(LocalizationPluginActivity.this, R.string.instruction_description,
           Toast.LENGTH_LONG).show();
       }

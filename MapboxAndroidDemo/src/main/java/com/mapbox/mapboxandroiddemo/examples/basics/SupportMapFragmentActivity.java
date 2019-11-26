@@ -1,9 +1,9 @@
 package com.mapbox.mapboxandroiddemo.examples.basics;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -37,7 +37,7 @@ public class SupportMapFragmentActivity extends AppCompatActivity {
       final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
       // Build mapboxMap
-      MapboxMapOptions options = new MapboxMapOptions();
+      MapboxMapOptions options = MapboxMapOptions.createFromAttributes(this, null);
       options.camera(new CameraPosition.Builder()
         .target(new LatLng(-52.6885, -70.1395))
         .zoom(9)
@@ -53,20 +53,21 @@ public class SupportMapFragmentActivity extends AppCompatActivity {
       mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentByTag("com.mapbox.map");
     }
 
-    mapFragment.getMapAsync(new OnMapReadyCallback() {
-      @Override
-      public void onMapReady(@NonNull MapboxMap mapboxMap) {
+    if (mapFragment != null) {
+      mapFragment.getMapAsync(new OnMapReadyCallback() {
+        @Override
+        public void onMapReady(@NonNull MapboxMap mapboxMap) {
+          mapboxMap.setStyle(Style.SATELLITE, new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
 
-        mapboxMap.setStyle(Style.SATELLITE, new Style.OnStyleLoaded() {
-          @Override
-          public void onStyleLoaded(@NonNull Style style) {
-
-            // Map is set up and the style has loaded. Now you can add data or make other map adjustments
+              // Map is set up and the style has loaded. Now you can add data or make other map adjustments
 
 
-          }
-        });
-      }
-    });
+            }
+          });
+        }
+      });
+    }
   }
 }

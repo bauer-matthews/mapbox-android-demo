@@ -1,7 +1,7 @@
 package com.mapbox.mapboxandroiddemo.account;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.mapboxandroiddemo.R;
 
@@ -13,7 +13,9 @@ public class LoadingActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    if (getSupportActionBar() != null) {
+      getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
     setContentView(R.layout.activity_loading);
   }
 }

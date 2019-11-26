@@ -2,8 +2,8 @@ package com.mapbox.mapboxandroiddemo.examples.dds;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
@@ -57,7 +57,7 @@ public class DrawPolygonActivity extends AppCompatActivity {
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_annotation_polygon);
+    setContentView(R.layout.activity_dds_draw_polygon);
 
     mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);
@@ -68,8 +68,8 @@ public class DrawPolygonActivity extends AppCompatActivity {
           @Override
           public void onStyleLoaded(@NonNull Style style) {
             style.addSource(new GeoJsonSource("source-id", Polygon.fromLngLats(POINTS)));
-            style.addLayer(new FillLayer("layer-id", "source-id").withProperties(
-              fillColor(Color.parseColor("#3bb2d0")))
+            style.addLayerBelow(new FillLayer("layer-id", "source-id").withProperties(
+              fillColor(Color.parseColor("#3bb2d0"))), "settlement-label"
             );
           }
         });

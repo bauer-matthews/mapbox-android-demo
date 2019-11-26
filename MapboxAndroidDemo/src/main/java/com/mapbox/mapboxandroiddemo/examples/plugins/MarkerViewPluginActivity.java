@@ -1,8 +1,8 @@
 package com.mapbox.mapboxandroiddemo.examples.plugins;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -38,7 +38,7 @@ public class MarkerViewPluginActivity extends AppCompatActivity {
     Mapbox.getInstance(this, getString(R.string.access_token));
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
-    setContentView(R.layout.activity_annotation_marker);
+    setContentView(R.layout.activity_markerview_plugin);
 
     mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);
